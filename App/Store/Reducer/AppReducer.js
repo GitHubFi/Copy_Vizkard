@@ -5,7 +5,9 @@ let INITIAL_STATE = {
     isError: false,
     errorTest: "",
     userDetail: {},
-    allUserPublicList: []
+    allUserPublicList: [],
+    All_Experience: []
+
 };
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
@@ -22,7 +24,14 @@ export default (state = INITIAL_STATE, action) => {
         case actionTypes.GET_PROFILE_ERROR:
             return { ...state, isError: true, isProgress: false, errorTest: action.payload };
         case actionTypes.GET_ALL_USER_PUBLIC_SUCCESS:
-        return { ...state, allUserPublicList: action.payload };
+            return { ...state, allUserPublicList: action.payload };
+        case actionTypes.GET_Experience_SUCCESS:
+          
+            return { ...state, All_Experience: action.payload };
+
+
+
+
         default:
             return state;
     }

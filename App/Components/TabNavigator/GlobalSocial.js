@@ -10,50 +10,14 @@ import {
   Image,
   FlatList,
   TextInput,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  AsyncStorage
 } from "react-native";
 import { Item, Input, Icon } from "native-base";
 const { width, height, scale, fontScale } = Dimensions.get("window");
 import { getAllUser } from '../../Store/Actions/AppAction'
 import { connect } from "react-redux";
 import firebase from "react-native-firebase";
-const arrList = [
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "a"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "b"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "c"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "d"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "e"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "f"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "g"
-  }
-];
 
 const numColumns = 3;
 class GlobalSocial extends Component {
@@ -62,9 +26,11 @@ class GlobalSocial extends Component {
     this.state = {
       modalVisible: false,
       text: '',
-     
+
       dataSource: [],
-      notFound: "no data found"
+      notFound: "no data found",
+      users: [],
+      all_friend: []
 
     };
   }
@@ -88,16 +54,17 @@ class GlobalSocial extends Component {
     return {
       title: "Public Profiles",
       headerStyle: {
-        backgroundColor: "#0033a0"
+        backgroundColor: "#0071CE"
       },
       headerTintColor: "#fff",
       headerLeft: (
         <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-          <Image
+          {/* <Image
             source={require("../../../assets/Setting.png")}
             resizeMode="contain"
             style={{ width: width / 12, marginLeft: 8, marginRight: -6 }}
-          />
+          /> */}
+          <Icon name="menu" style={{ color: "#fff", marginLeft: 18, fontSize: width / 9 }} />
         </TouchableOpacity>
       ),
       headerTitleStyle: {
@@ -118,7 +85,7 @@ class GlobalSocial extends Component {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.toggleDrawer()}
+            onPress={() => navigation.navigate("Profile")}
             style={{ marginRight: width / 28 }}
           >
             <Image
@@ -135,10 +102,49 @@ class GlobalSocial extends Component {
     this.setState({ modalVisible: visible });
   }
   componentWillMount() {
+    firebase
+      .database()
+      .ref("users")
+      .on("child_added", value => {
+        this.setState(prevState => {
+          return {
+            users: [...prevState.users, value.val()]
+          };
+        });
+      });
+
+    firebase.auth().onAuthStateChanged(async function (user) {
+      if (user) {
+        // console.log(user, "user available")
+        // console.log(user._auth._user._user.uid, "uid")
+        await AsyncStorage.setItem('User', user._auth._user._user.uid)
+
+
+      } else {
+        // ...
+        // console.log('errorss')
+      }
+    });
+
+
+    // firebase
+    // .database()
+    // .ref("users")
+    // .child("FriendList")
+    // .on("child_added", value => {
+    //   this.setState(prevState => {
+    //     return {
+    //       all_friend: [...prevState.all_friend, value.val()]
+    //     };
+    //   });
+    // });
+
     let currentUser = firebase.auth().currentUser
     this.setModalVisible(true)
     this.props.getAllUserComp()
+
   }
+
 
   SearchFilterFunction(text) {
     //passing the inserted text in textinput
@@ -166,28 +172,12 @@ class GlobalSocial extends Component {
       //After setting the data it will automatically re-render the view
       dataSource: newData,
       text: text,
- 
+
     });
   }
 
-  // ListViewItemSeparator = () => {
-  //   //Item sparator view
-  //   return (
-  //     <View
-  //       style={{
-  //         backgroundColor: "#4D243D",
-  //         alignItems: "center",
-  //         justifyContent: "center",
-  //         flex: 1,
-  //         margin: 1,
-  //         height: Dimensions.get("window").width / numColumns,
-  //         backgroundColor: "transparent"
-  //       }}
-  //     />
-  //   );
-  // };
   renderItem = ({ item, index }) => {
-    if (item.empty === true || item.uid === this.props.userID) {
+    if (item.empty === true || item.uid === this.props.userID.uid) {
       return (
         <View
 
@@ -203,6 +193,8 @@ class GlobalSocial extends Component {
         />
       );
     }
+
+
 
     return (
       <TouchableOpacity
@@ -260,16 +252,17 @@ class GlobalSocial extends Component {
                     // marginRight:width/38
                   }}
                 >
-                  320
+
+
                 </Text>
-                <Image
+                {/* <Image
                   source={require("../../../assets/addContact.png")}
                   resizeMode="contain"
                   style={{ width: width / 30, height: height / 30 }}
-                />
+                /> */}
               </View>
-              <View style={{ marginLeft: width / 20 }}>
-                <Text style={{ color: '#fff' }}>*******</Text>
+              <View style={{ marginLeft: width / 0 }}>
+                <Text style={{ color: '#fff' }}></Text>
               </View>
             </View>
           </View>
@@ -285,7 +278,7 @@ class GlobalSocial extends Component {
 
 
   render() {
-    console.log(this.props.allUserListComp)
+    // console.log(this.props.allUserListComp)
     return (
       <View style={{ flex: 1 }}>
         {/* <KeyboardAvoidingView contentContainerStyle={{
@@ -297,7 +290,7 @@ class GlobalSocial extends Component {
         <View
           style={{
             flex: 0.3,
-            backgroundColor: "#0033a0",
+            backgroundColor: "#0071CE",
             flexDirection: "row"
             // height:height
           }}
@@ -379,7 +372,7 @@ class GlobalSocial extends Component {
           }
         </View>
         <Modal
-          animationType="slide"
+          animationType="fade"
           transparent={false}
           visible={this.state.modalVisible}
           onRequestClose={() => {
@@ -431,6 +424,7 @@ class GlobalSocial extends Component {
   }
 }
 function mapStateToProps(state) {
+  // console.log(state.appReducer.allUserListComp, "FRIENDLST DATA CHEKNG")
   return {
     allUserListComp: state.appReducer.allUserPublicList,
     userID: state.authReducer.userID,

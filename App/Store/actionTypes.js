@@ -26,4 +26,14 @@ export default class Auth {
     static GET_ALL_USER_PUBLIC_PROGRESS = 'GET_ALL_USER_PUBLIC_PROGRESS';
 
     static Get_USER_REQ = "Get_USER_REQ";
+
+    static SIGNUP_PROGRESS = "SIGNUP_PROGRESS";
+    static SIGNUP_ERROR = "SIGNUP_ERROR";
+
+    static GET_Experience_SUCCESS = "GET_Experience_SUCCESS"
+// 
+
+
 }
+
+

@@ -20,21 +20,31 @@ import SignIn from "./SignIn/SignIn.js";
 import SignUp from "./SignUp/SignUp.js";
 import VerifySignIn from "./SignIn/Verify";
 import ChatScreen from './TabNavigator/ChatScreen'
-import { Provider } from "react-redux";
+import { Provider } from "react-redux";                              //2
+import Profile from './TabNavigator/Profile'
 import { store, persistor } from "../Store/index";
 // import { loadState, saveState } from '../Store/stateMaintain'
-import { PersistGate } from 'redux-persist/integration/react'
+import { PersistGate } from 'redux-persist/integration/react'        //1
 import Icon from "react-native-vector-icons/Ionicons";
+import Login from "./SignIn/Login"
+import LogOut from './DrawerNavigator/LogOut'
+import Edit_Experience from './TabNavigator/Edit_Experience'
 
 const AuthStackNavigator = createStackNavigator(
   {
     signIn: SignIn,
-    verifySignIn: VerifySignIn,
-    app: AppDrawerNavigator,
+    // verifySignIn: VerifySignIn,
+    // app: AppDrawerNavigator,
+    Login: Login,
+    Profile: Profile,
+    LogOut: LogOut,
+    Edit_Experience: Edit_Experience
+
+
     // ChatScreen:ChatScreen
   },
   {
-    initialRouteName: "signIn"
+    initialRouteName: "Login"
   }
 );
 
@@ -42,6 +52,8 @@ const Switch = createSwitchNavigator({
   splash: Splash,
   auth: AuthStackNavigator,
   app: AppDrawerNavigator,
+
+
   // ChatScreen:ChatScreen
 });
 

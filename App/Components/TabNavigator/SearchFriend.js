@@ -10,112 +10,54 @@ import {
   AsyncStorage
 } from "react-native";
 const { width, height } = Dimensions.get("window");
-import { Item, Input, Icon } from "native-base";
+import { Item, Input, Icon, List, ListItem, Thumbnail, Right, Left, Body } from "native-base";
 import firebase from "react-native-firebase";
+import { connect } from "react-redux";
 import Demo from './Demo'
 import { ActionSheetCustom as ActionSheet } from 'react-native-actionsheet'
 
-const arrList = [
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "a"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "b"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "c"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "d"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "e"
-  },
-  {
-    imageUrl:
-      "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg",
-    key: "f"
+
+class SearchFriend extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      users: [],
+      text: '',
+      dataSource: [],
+      NoData: "Not found!"
+    }
+
+
   }
-];
 
-export default class SearchFriend extends Component {
-
-  state = {
-    users: []
-  };
-  // addUser = ()=>{
-  //   Alert.alert(
-  //     'Alert Title',
-  //     'My Alert Msg',
-  //     [
-  //       {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-  //       {
-  //         text: 'Cancel',
-  //         onPress: () => console.log('Cancel Pressed'),
-  //         style: 'cancel',
-  //       },
-  //       {text: 'OK', onPress: () => console.log('OK Pressed')},
-  //     ],
-  //     {cancelable: false},
-  //   );
-  // }
 
   static navigationOptions = ({ navigation }) => {
     return {
       headerStyle: {
-        backgroundColor: "#0033a0"
+        backgroundColor: "#0071CE",
+        // justifyContent:"center",
+        // alignSelf:"center"
       },
-      headerTitle: (
-        <Item
-          rounded
-          style={{
-            backgroundColor: "#fff",
-            width: width / 2,
-            height: height / 18
-          }}
-        >
-          <Input placeholder="Search" />
-          <Icon active name="search" style={{ color: "#0033a0" }} />
-        </Item>
-      ),
+      headerTitle: "Friend List",
 
       headerTintColor: "#fff",
       headerLeft: (
         <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-          <Image
+          {/* <Image
             source={require("../../../assets/Setting.png")}
             resizeMode="contain"
             style={{ width: width / 12, marginLeft: 8, marginRight: -6 }}
-          />
+          /> */}
+          <Icon name="menu" style={{ color: "#fff", marginLeft: 18, fontSize: width / 9 }} />
         </TouchableOpacity>
       ),
       headerRight: (
         <View style={{ flexDirection: "row" }}>
-        
-            <Demo/>
-            
 
-            {/* <Image
-              source={require("../../../assets/addContact.png")}
-              resizeMode="contain"
-              style={{ width: width / 12, marginLeft: 8, marginRight: -6 }}
-            
-            /> */}
-         
+          <Demo />
 
-          {/* </TouchableOpacity> */}
           <TouchableOpacity
-            onPress={() => navigation.toggleDrawer()}
+            onPress={() => navigation.goBack()}
             style={{ marginRight: width / 28 }}
           >
             <Image
@@ -130,22 +72,48 @@ export default class SearchFriend extends Component {
   };
 
 
+  SearchFilterFunction(text) {
+    //passing the inserted text in textinput
+    const newData = this.state.users.filter(function (item) {
+      //applying filter for the inserted text in search bar
+      const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
 
-  async componentWillMount() {
-    let userPhone = await AsyncStorage.getItem('user')
-    let dbRef = firebase.database().ref(`users/${userPhone}/FriendList`);
+      if (text === item.name) {
+        return item
+      }
 
-    dbRef.on("child_added", async val => {
+
+      // return itemData.indexOf(textData) > -1;
+      // return newData
+    });
+
+    this.setState({
+      //setting the filtered newData on datasource
+      //After setting the data it will automatically re-render the view
+      dataSource: newData,
+      text: text,
+
+    });
+  }
+
+  componentWillMount() {
+    // let userPhone = await AsyncStorage.getItem('user')
+    // let userPhone =this.props.phoneNumber;
+    let uid = this.props.userID.uid
+    let dbRef = firebase.database().ref(`users/${uid}/FriendList`);
+
+    dbRef.on("child_added", val => {
 
       let person = val.val();
-      console.log(person, "all users")
+      // console.log(person, "all users")
       person.phone = val.key;
-      console.log(person.phone, "user phone")
+      // console.log(person.phone, "user phone")
 
-      if (person.phone === userPhone) {
+      if (person.phone === uid) {
 
       } else {
-        console.log(person, "own user");
+        // console.log(person, "own user");
         this.setState(prevState => {
           return {
             users: [...prevState.users, person]
@@ -158,102 +126,166 @@ export default class SearchFriend extends Component {
 
   render() {
     return (
-      <FlatList
-        data={this.state.users}
-        renderItem={({ item }) => (
-          item ?
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: "#0071ce",
-                flexDirection: "row",
-                height: height / 6,
-                marginRight: -width / 8
-              }}
-            >
-              <View style={{ flex: 0.3 }}>
-                <Image
-                  source={{ uri: "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }}
-                  // resizeMode="contain"
-                  style={{ width: width / 3, height: height / 6 }}
-                />
-              </View>
-              <View style={{ flex: 0.6, paddingLeft: width / 0 }}>
-                <View style={{
-                  justifyContent: "center",
-                  paddingTop: height / 24,
-                }}>
-                  <Text style={{ color: "#fff", fontSize: width / 20 }}>
-                    {" "}
-                    {item.name.toUpperCase()}
-                  </Text>
-                  <Text style={{ color: "#fff" }}> {item.occupation} / {item.company}</Text>
-                  <Text style={{ color: "#fff" }}> {item.email} -  {item.phone}</Text>
-                </View>
-                <View
-                  style={{
-                    alignSelf: "flex-end",
-                    flexDirection: "row",
-                    paddingRight: width / 20,
-                    //   backgroundColor:'yellow',
-                    height: height / 20,
-                    marginTop: width / 24
-                  }}
+      <View style={{ flex: 1, backgroundColor: "#fff" }}>
+        <Item
+          success
+          style={{
+            backgroundColor: "#fff",
+            width: width,
+            height: height / 18,
+
+          }}
+        >
+          <Input placeholder="  Search..."
+            onChangeText={(text) => this.SearchFilterFunction(text)}
+            style={{
+              paddingLeft: 10, padding: 10,
+              paddingBottom: 15
+            }}
+          />
+          <Icon active name="search" size={width / 6} style={{ color: "#0033a0", paddingRight: 10, }} />
+        </Item>
+
+        <FlatList
+          data={this.state.users}
+          data={(this.state.text === '' || this.state.dataSource === null) ? this.state.users : this.state.dataSource}
+
+          renderItem={({ item }) => (
+            item ?
+              <List >
+                <ListItem avatar
+                //    onPress={() =>
+                //  this.props.navigation.navigate("ChatScreen", item)}
                 >
-                  <TouchableOpacity
-                  // onPress={() => navigation.toggleDrawer()}
-                  //   marginTop:width/24,
-                  // style={{ paddingTop:width/36 , }}
-                  >
-                    <Image
-                      source={require("../../../assets/share1.png")}
-                      style={{
-                        width: width / 15,
-                        height: height / 28,
-                        marginLeft: 8, paddingBottom: 10
-                      }}
-                    />
-                  </TouchableOpacity>
+                  <Left>
+                    <Thumbnail source={{ uri: 'https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg' }} />
+                  </Left>
+                  <Body>
+                    <Text style={{ fontSize: width / 20, }}>{item.name}</Text>
+                    <Text note  > {item.occupation} / {item.company}</Text>
+                    <Text note > {item.email} </Text>
+                    <Text note > {item.phoneNumber}</Text>
+                  </Body>
+                  <Right>
+                    <Icon active style={{ color: "blue", paddingTop: 15 }} name="share" />
+                  </Right>
+                  <Right>
+                    <Icon active style={{ color: "red", paddingTop: 15 }} name="heart" />
+                  </Right>
 
-                  <TouchableOpacity
-                  // onPress={() => navigation.toggleDrawer()}
-                  // style={{ marginTop:width/36, }}
-                  >
-                    <Image
-                      source={require("../../../assets/chat1.png")}
-                      style={{
-                        width: width / 15,
-                        height: height / 30,
-                        marginLeft: 8,
-                        paddingBottom: 5
+                </ListItem>
+              </List>
+              // <View
+              //   style={{
+              //     flex: 1,
+              //     backgroundColor: "#0071ce",
+              //     flexDirection: "row",
+              //     height: height / 6,
+              //     marginRight: -width / 8
+              //   }}
+              // >
+              //   <View style={{ flex: 0.3 }}>
+              //     <Image
+              //       source={{ uri: "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }}
+              //       // resizeMode="contain"
+              //       style={{ width: width / 3, height: height / 6 }}
+              //     />
+              //   </View>
+              //   <View style={{ flex: 0.6, paddingLeft: width / 0 }}>
+              //     <View style={{
+              //       justifyContent: "center",
+              //       paddingTop: height / 24,
+              //     }}>
+              //       <Text style={{ color: "#fff", fontSize: width / 20 }}>
+              //         {" "}
+              //         {item.name}
+              //       </Text>
+              //       <Text style={{ color: "#fff" }}> {item.occupation} / {item.company}</Text>
+              //       <Text style={{ color: "#fff" }}> {item.email} -  {item.phoneNumber}</Text>
+              //     </View>
+              //     <View
+              //       style={{
+              //         alignSelf: "flex-end",
+              //         flexDirection: "row",
+              //         paddingRight: width / 20,
+              //         //   backgroundColor:'yellow',
+              //         height: height / 20,
+              //         marginTop: width / 24
+              //       }}
+              //     >
+              //       <TouchableOpacity
+              //       // onPress={() => navigation.toggleDrawer()}
+              //       //   marginTop:width/24,
+              //       // style={{ paddingTop:width/36 , }}
+              //       >
+              //         <Image
+              //           source={require("../../../assets/share1.png")}
+              //           style={{
+              //             width: width / 15,
+              //             height: height / 28,
+              //             marginLeft: 8, paddingBottom: 10
+              //           }}
+              //         />
+              //       </TouchableOpacity>
 
-                      }}
-                    />
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity
-                  // onPress={() => navigation.toggleDrawer()}
-                  // style={{ paddingTop:width/36 }}
-                  >
-                    <Image
-                      source={require("../../../assets/heart.png")}
-                      style={{
-                        width: width / 15,
-                        height: height / 30,
-                        marginLeft: 8,
-                        paddingBottom: 12
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
+              //       <TouchableOpacity
+              //       // onPress={() => navigation.toggleDrawer()}
+              //       // style={{ marginTop:width/36, }}
+              //       >
+              //         <Image
+              //           source={require("../../../assets/chat1.png")}
+              //           style={{
+              //             width: width / 15,
+              //             height: height / 30,
+              //             marginLeft: 8,
+              //             paddingBottom: 5
 
-            </View>
-            : null
-        )}
-        keyExtractor={item => item.phone}
-      />
+              //           }}
+              //         />
+              //       </TouchableOpacity>
 
+              //       <TouchableOpacity
+              //       // onPress={() => navigation.toggleDrawer()}
+              //       // style={{ paddingTop:width/36 }}
+              //       >
+              //         <Image
+              //           source={require("../../../assets/heart.png")}
+              //           style={{
+              //             width: width / 15,
+              //             height: height / 30,
+              //             marginLeft: 8,
+              //             paddingBottom: 12
+              //           }}
+              //         />
+              //       </TouchableOpacity>
+              //     </View>
+              //   </View>
+
+              // </View>
+              : null
+          )}
+          keyExtractor={item => item.phone}
+        />
+      </View>
     );
   }
 }
+function mapStateToProps(state) {
+  return {
+    userID: state.authReducer.userID,
+    phoneNumber: state.authReducer.phoneNumber
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    // createProfile: obj => dispatch(createProfileAction(obj))
+  };
+}
+
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SearchFriend);
+

@@ -1,5 +1,5 @@
 import { combineReducers, createStore, applyMiddleware, compose } from "redux";
-import {AsyncStorage} from 'react-native'
+import { AsyncStorage } from 'react-native'
 import { combineEpics, createEpicMiddleware } from "redux-observable";
 import { createLogger } from "redux-logger";
 import thunk from 'redux-thunk';
@@ -18,8 +18,14 @@ const rootReducer = combineReducers({
 });
 
 const persistConfig = {
-  key:'root',
-  storage:AsyncStorage
+  key: 'root',
+  storage: AsyncStorage,
+  // whitelist: [
+  //   'authReducer',
+  // ],
+  // blacklist: [
+  //   'appReducer'
+  // ]
 }
 export const rootEpic = combineEpics(
   AuthEpic.loginEpic,
@@ -31,11 +37,11 @@ export const rootEpic = combineEpics(
 );
 
 const epicMiddleware = createEpicMiddleware(rootEpic);
-const persistedReducer = persistReducer(persistConfig,rootReducer)
+const persistedReducer = persistReducer(persistConfig, rootReducer)
 const createStoreWithMiddleware = applyMiddleware(
   thunk,
   loggerMiddleware
 );
 
- export let store = createStore(persistedReducer, createStoreWithMiddleware);
-export  let persistor = persistStore(store)
+export let store = createStore(persistedReducer, createStoreWithMiddleware);
+export let persistor = persistStore(store)

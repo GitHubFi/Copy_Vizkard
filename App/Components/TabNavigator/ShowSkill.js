@@ -1,0 +1,132 @@
+import React, { Component } from 'react';
+import { Text, StyleSheet, View, Alert, Dimensions, ScrollView, Modal, TouchableHighlight } from 'react-native';
+import { Container, Header, Content, Left, Body, Right, Button, Icon, Title, Item, Input, Label, Spinner } from 'native-base';
+import { connect } from 'react-redux';
+import firebase from "react-native-firebase";
+const { width, height } = Dimensions.get("window");
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import Edit_Skill from "./Edit_Skill";
+
+
+
+class ShowSkill extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            total_skills: [],
+            modalVisible1: false,
+            Edit_Skill: null
+        }
+    }
+
+    componentWillMount() {
+        let userID = this.props.userID.uid;
+        firebase
+            .database()
+            .ref("users")
+            .child(userID)
+            .child('Skills')
+            .on("child_added", value => {
+
+                this.setState(prevState => {
+                    return {
+                        total_skills: [...prevState.total_skills, value.val()]
+                    };
+                });
+            });
+
+
+
+    }
+
+    
+
+
+    setModalVisible1(visible, Skill) {
+        this.setState({ modalVisible1: visible, Edit_Skill: Skill });
+    }
+
+    render() {
+
+        return (
+            <ScrollView>
+                <View
+                    style={{ marginTop: 0, justifyContent: "center", textAlign: "center", padding: 10, margin: 0 }}>
+
+                    {
+                        this.state.total_skills.slice(0).reverse().map((value, id) => {
+                            return <View key={id}>
+
+                                <Text
+                                    style={{
+                                        fontSize: width / 30,
+                                        paddingTop: 0,
+                                        paddingBottom: 10,
+                                        fontWeight: "normal",
+                                        color: "#fff"
+                                    }}
+                                    onPress={() => {
+                                        this.setModalVisible1(true, value.Skill);
+                                    }}>
+                                    {value.Skill}
+                                </Text>
+                                <Modal
+                                    animationType="fade"
+                                    transparent={false}
+                                    style={{ backgroundColor: "black" }}
+                                    visible={this.state.modalVisible1}
+                                    onRequestClose={() => {
+                                        // Alert.alert('Modal has been closed.');
+                                        // console.log("cancel")
+                                    }}
+                                >
+                                    <View style={{ marginTop: 22, padding: 10 }}>
+                                        <View>
+
+
+                                            <TouchableHighlight
+                                                onPress={() => {
+                                                    this.setModalVisible1(!this.state.modalVisible1);
+                                                }}>
+
+                                                <MaterialCommunityIcons
+                                                    name="keyboard-backspace"
+                                                    size={width / 15}
+                                                    color="#000"
+                                                    style={{}}
+                                                />
+                                            </TouchableHighlight>
+
+                                        </View>
+
+                                    </View>
+
+
+                                    <Edit_Skill value={this.state.Edit_Skill} />
+                                </Modal>
+                            </View>
+
+
+                        })
+                    }
+
+                </View>
+            </ScrollView>
+        );
+    }
+}
+
+const styles = StyleSheet.flatten({});
+function mapStateToProps(state) {
+    return {
+        userID: state.authReducer.userID,
+    }
+}
+function mapDispatchToProps(dispatch) {
+    return {
+        // verifyCode: (payload, path) => {
+        //     dispatch(verifylogin(payload, path));
+        // }
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ShowSkill);

@@ -14,17 +14,18 @@ import {
 } from "react-native";
 import User from "../SignIn/User";
 import firebase from "react-native-firebase";
-let { height, width } = Dimensions.get("window");
+const { height, width } = Dimensions.get("window");
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { connect } from 'react-redux';
+import { All_Message_Action } from '../../Store/Actions/AppAction';
 class ChatScreen extends Component {
   constructor(props) {
     super(props);
-    console.log(props, 'user data for chat')
+    // console.log(props, 'user data for chat')
     this.state = {
       person: {
         name: props.navigation.state.params.name,
-        phone: props.navigation.state.params.phoneNumber,
+        phone: props.navigation.state.params.uid,
       },
       textMessage: "",
       messageList: [],
@@ -37,7 +38,7 @@ class ChatScreen extends Component {
     return {
       title: params.name,
       headerStyle: {
-        backgroundColor: "#518ef0"
+        backgroundColor: "#0071CE"
       },
       headerTintColor: "#fff",
       headerLeft: (
@@ -86,10 +87,9 @@ class ChatScreen extends Component {
     this.setState({
       userName: meraj
     })
-
-    console.log(meraj, "m")
-
-
+   
+    // const message = this.state.messageList
+    
   }
   convertDate = time => {
     var timestamp = time.toString().substring(0, 10)
@@ -101,7 +101,7 @@ class ChatScreen extends Component {
     ]
 
 
-    console.log("CURRENT DATE", date)
+    // console.log("CURRENT DATE", date)
     return datevalues[0] + "/" + datevalues[1] + "/" + datevalues[2];
   }
 
@@ -120,13 +120,16 @@ class ChatScreen extends Component {
     //     result = d.getDay() + "" + d.getMonth() + "" + result;
     // }
     return result;
+
   };
-  async componentWillMount() {
-    let userPhone = await AsyncStorage.getItem('user')
+  componentWillMount() {
+    // let userPhone = await AsyncStorage.getItem('user')
+    // let userPhone =this.props.phoneNumber;
+    let userID = this.props.userID.uid;
     firebase
       .database()
       .ref("messages")
-      .child(userPhone)
+      .child(userID)
       .child(this.state.person.phone)
       .on("child_added", value => {
         this.setState(prevState => {
@@ -135,28 +138,34 @@ class ChatScreen extends Component {
           };
         });
       });
+
   }
   sendMessage = async () => {
-    let userPhone = await AsyncStorage.getItem('user')
+    // let userPhone = await AsyncStorage.getItem('user')
+    // let userPhone =this.props.phoneNumber;
+    let userID = this.props.userID.uid;
     if (this.state.textMessage.length > 0) {
       let msgId = firebase
         .database()
         .ref("messages")
-        .child(userPhone)
+        .child(userID)
         .child(this.state.person.phone)
         .push().key;
-      console.log(msgId)
+
+      // console.log(msgId)
+
       let updates = {};
+
       let message = {
         message: this.state.textMessage,
         time: firebase.database.ServerValue.TIMESTAMP,
-        from: userPhone
+        from: userID
       };
       updates[
-        `messages/${userPhone}/${this.state.person.phone}/${msgId}`
+        `messages/${userID}/${this.state.person.phone}/${msgId}`
       ] = message;
       updates[
-        `messages/${this.state.person.phone}/${userPhone}/${msgId}`
+        `messages/${this.state.person.phone}/${userID}/${msgId}`
       ] = message;
 
       firebase
@@ -167,15 +176,15 @@ class ChatScreen extends Component {
     }
   };
   renderRow = ({ item }) => {
-    console.log(item, 'user list message')
+    // console.log(item, 'user list message')
 
     return (
       <View
         style={{
           // flexDirection: "row",
           width: "90%",
-          alignSelf: item.from === this.props.phoneNumber ? "flex-end" : "flex-start",
-          backgroundColor: item.from === this.props.phoneNumber ? "#2967cc" : "#e1e2e3",
+          alignSelf: item.from === this.props.userID.uid ? "flex-end" : "flex-start",
+          backgroundColor: item.from === this.props.userID.uid ? "#2967cc" : "#e1e2e3",
           borderRadius: 8,
           marginBottom: 10,
           // borderTopRightRadius: -10,
@@ -185,7 +194,7 @@ class ChatScreen extends Component {
         <Text
           style={{
             //color: "#fff",
-            color: item.from === this.props.phoneNumber ? "#fff" : "#000",
+            color: item.from === this.props.userID.uid ? "#fff" : "#000",
             padding: 10,
             fontSize: 16,
             // alignItems: "flex-start"
@@ -196,7 +205,7 @@ class ChatScreen extends Component {
         </Text>
         <Text
           style={{
-            color: item.from === this.props.phoneNumber ? "#fff" : "#000",
+            color: item.from === this.props.userID.uid ? "#fff" : "#000",
             padding: 5,
             fontSize: 12,
             alignItems: "center",
@@ -209,7 +218,7 @@ class ChatScreen extends Component {
 
           <Text
             style={{
-              color: item.from === this.props.phoneNumber ? "#fff" : "#000",
+              color: item.from === this.props.userID.uid ? "#fff" : "#000",
               padding: 5,
               fontSize: 12,
               alignItems: "center",
@@ -228,7 +237,7 @@ class ChatScreen extends Component {
   };
   render() {
 
-    console.log(this.state.messageList, "message list create")
+    // console.log(this.state.messageList, "message list create")
 
 
     return (
@@ -289,12 +298,12 @@ class ChatScreen extends Component {
                     padding: 10,
                   }}
                 > <Ionicons
-                name="ios-send"
-                size={width / 10}
-                color="#2892de"
-                style={{ marginLeft: 5, marginTop:5 }}
-              />
-              
+                    name="ios-send"
+                    size={width / 10}
+                    color="#2892de"
+                    style={{ marginLeft: 5, marginTop: 5 }}
+                  />
+
                 </Text>
               </TouchableOpacity>
             </View>
@@ -307,7 +316,15 @@ class ChatScreen extends Component {
 }
 function mapStateToProps(state) {
   return {
-    phoneNumber: state.authReducer.phoneNumber
+    phoneNumber: state.authReducer.phoneNumber,
+    userID: state.authReducer.userID,
   }
 }
-export default connect(mapStateToProps, null)(ChatScreen);
+function mapDispatchToProps(dispatch) {
+  return {
+    // All_Message: (array) => {
+    //   dispatch(All_Message_Action(array));
+    // },
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ChatScreen);

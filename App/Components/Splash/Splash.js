@@ -37,16 +37,16 @@ export default class SplashScreen extends Component {
   // }
   loadApp = async () => {
     // await AsyncStorage.clear();
-    const userToken = await AsyncStorage.getItem("user");
+    const userToken = await AsyncStorage.getItem("User");
     await AsyncStorage.getAllKeys().then(keys => AsyncStorage.multiGet(keys)
       .then((result) => {
-        console.log(result, 'keys all')
+        // console.log(result, 'keys all')
       }));
-    console.log(userToken, 'nullll ')
+    // console.log(userToken, 'nullll ')
     if (userToken !== null) {
       this.props.navigation.navigate("app");
     } else {
-      this.props.navigation.navigate("auth");
+      this.props.navigation.navigate("Login");
 
     }
   };

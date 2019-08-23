@@ -9,7 +9,7 @@ import {
   AsyncStorage,
   SafeAreaView
 } from "react-native";
-import { Container, Header, Content, List, ListItem, Thumbnail, Left, Body, Right, Button } from 'native-base';
+import { Container, Header, Content, List, ListItem, Thumbnail, Left, Body, Right, Button, Icon } from 'native-base';
 const { width, height, scale, fontScale } = Dimensions.get("window");
 import firebase from "react-native-firebase";
 import User from "../SignIn/User";
@@ -65,23 +65,34 @@ const arrList = [
   }
 ];
 class MessageList extends Component {
-  state = {
-    users: []
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      // person: {
+      //   name: props.navigation.state.params.name,
+      //   phone: props.navigation.state.params.uid,
+      // },
+      messageList: [],
+      users: []
+
+    };
+  }
   static navigationOptions = ({ navigation }) => {
     return {
       title: "Chats",
       headerStyle: {
-        backgroundColor: "#0033a0"
+        backgroundColor: "#0071CE"
       },
       headerTintColor: "#fff",
       headerLeft: (
         <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-          <Image
+          {/* <Image
             source={require("../../../assets/Setting.png")}
             resizeMode="contain"
             style={{ width: width / 12, marginLeft: 8, marginRight: -6 }}
-          />
+          /> */}
+          <Icon name="menu" style={{ color: "#fff", marginLeft: 18, fontSize: width / 9 }} />
         </TouchableOpacity>
       ),
       headerTitleStyle: {
@@ -102,7 +113,7 @@ class MessageList extends Component {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.toggleDrawer()}
+            onPress={() => navigation.goBack()}
             style={{ marginRight: width / 28 }}
           >
             <Image
@@ -115,71 +126,58 @@ class MessageList extends Component {
       )
     };
   };
-  // componentWillMount() {
-  //   let dbRef = firebase.database().ref("users");
-  //   // console.log(dbRef);
-  //   dbRef.on("child_added", async val => {
-  //     // console.log(val);
-  //     let person = val.val();
-  //     console.log(person, "all users")
-  //     person.phone = val.key;
-  //     console.log(person.phone, "user phone")
-  //     let userPhone = await AsyncStorage.getItem('user')
-  //     console.log(userPhone, 'async phone')
-  //     if (person.phone === userPhone) {
-  //       // User.name = person.name;
-  //       // console.log(User.name);
-  //     } else {
-  //       console.log(person, "own user");
-  //       this.setState(prevState => {
-  //         return {
-  //           users: [...prevState.users, person]
-  //         };
-  //       });
-  //     }
-  //     // console.log(person)
-  //   });
-  // }
+
   async componentWillMount() {
-    let userPhone = await AsyncStorage.getItem('user')
-    let dbRef = firebase.database().ref(`users/${userPhone}/FriendList`);
+    // let userPhone = await AsyncStorage.getItem('user');
+    let userID = this.props.userID.uid;
+    let dbRef = firebase.database().ref(`users/${userID}/FriendList`);
     dbRef.on("child_added", async val => {
-        let person = val.val();
-        console.log(person, "all users")
-        person.phone = val.key;
-        console.log(person.phone, "who user number--------------------------------")
+      let person = val.val();
+      // console.log(person, "all users")
+      person.phone = val.key;
+      // console.log(person.phone, "who user number--------------------------------")
 
-        if (person.phone === userPhone) {
+      if (person.uid === userID) {
 
-        } else {
-            console.log(person, "own user");
-            this.setState(prevState => {
-                return {
-                    users: [...prevState.users, person],
-                    // phone: [...prevState.phone, person],
+      } else {
+        // console.log(person, "own user");
+        this.setState(prevState => {
+          return {
+            users: [...prevState.users, person],
+            // phone: [...prevState.phone, person],
 
-                };
-            });
-            //this.props.GETUSERRequest(this.state.users)
-        }
+          };
+        });
+        //this.props.GETUSERRequest(this.state.users)
+      }
 
     });
-}
+
+
+    firebase
+      .database()
+      .ref("messages")
+      .child(userID)
+      .on("child_added", value => {
+        this.setState(prevState => {
+          return {
+            messageList: [...prevState.messageList, value.val()]
+          };
+        });
+      });
+  }
   render() {
-    console.log(this.state.users);
+
     return (
       <View style={{
-        backgroundColor: "#ffffff",
-        flex: 1,
+        backgroundColor: "#ffffff", flex: 1,
       }}>
 
-
-        {/* {this.state.usersuserDetail? */}
         <FlatList
           data={this.state.users}
           renderItem={({ item }) => (
             item ?
-            <List >
+              <List >
                 <ListItem avatar onPress={() =>
                   this.props.navigation.navigate("ChatScreen", item)
                 }>
@@ -187,17 +185,21 @@ class MessageList extends Component {
                     <Thumbnail source={{ uri: 'https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg' }} />
                   </Left>
                   <Body>
-                    <Text style={{fontSize: width / 20,}}> {item.name}</Text>
+                    <Text style={{ fontSize: width / 20, }}> {item.name}</Text>
                     <Text note> {item.email}</Text>
                   </Body>
                   <Right>
-                    <Text note>3:43 pm</Text>
+
+                    {/* <Text>3443</Text> */}
+
+
+
                   </Right>
                 </ListItem>
               </List>
               : null
           )}
-          keyExtractor={item => item.phone}
+          keyExtractor={item => item.uid}
         />
 
       </View>
@@ -211,8 +213,12 @@ class MessageList extends Component {
 }
 
 function mapStateToProps(state) {
+
   return {
-    userdDetail: state.appReducer.userdDetail
+    userdDetail: state.appReducer.userdDetail,
+    phoneNumber: state.authReducer.phoneNumber,
+    userID: state.authReducer.userID,
+
   }
 }
 function mapDispatchToProps(dispatch) {

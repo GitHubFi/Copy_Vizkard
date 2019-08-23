@@ -49,110 +49,100 @@ import { AsyncStorage, ToastAndroid } from 'react-native'
 
 
 export function signInAc(payload) {
-  console.log(payload)
-  return async  dispatch => {
+  // console.log("SAAAAAAAAADDDD", payload)
+  return dispatch => {
+    dispatch(signUpRequest());
     let phoneNumber = payload.phoneNumber;
     this.history = payload.history;
-    firebase.auth()
-      .verifyPhoneNumber(payload.phoneNumber
-        , 60, true
-      )
-      .on('state_changed', (phoneAuthSnapshot) => {
-
-        switch (phoneAuthSnapshot.state) {
-
-          case firebase.auth.PhoneAuthState.CODE_SENT: // or 'sent'
-            dispatch(signInRequest())
-            console.log('code sent');
-            ToastAndroid.show('Verification Code Sent', ToastAndroid.SHORT)
-            break;
-
-          case firebase.auth.PhoneAuthState.ERROR: // or 'error'
-            console.log('verification error');
-            ToastAndroid.show('Verification Error', ToastAndroid.SHORT)
-            dispatch(signUpError(phoneAuthSnapshot.error))
-            console.log(phoneAuthSnapshot.error);
-            break;
-
-          case firebase.auth.PhoneAuthState.AUTO_VERIFY_TIMEOUT: // or 'timeout'
-            console.log('auto verify on android timed out');
-            ToastAndroid.show('Auto verify on android timed out', ToastAndroid.SHORT)
-            break;
-
-          case firebase.auth.PhoneAuthState.AUTO_VERIFIED: // or 'verified'
-            console.log('auto verified on android');
-
-            const { verificationId, code } = phoneAuthSnapshot;
-            const credential = firebase.auth.PhoneAuthProvider.credential(verificationId, code);
-            firebase.auth().signInWithCredential(credential).then(async (userCredential) => {
-              console.log(userCredential, "user signin user")
-
-              await AsyncStorage.setItem('user', phoneNumber)
-              firebase
-                .database()
-                .ref(`users/${phoneNumber}`).child('userAuth')
-                .set(userCredential.user._user.uid);
-              console.log(userCredential, userCredential.user._user.uid, phoneNumber)
-              dispatch(signUpSucceed(userCredential, userCredential.user._user.uid, phoneNumber));
-              setTimeout(() => {
-
-                this.history.navigate("app");
-              }, 1000)
-
-
-            }).catch(err => {
-              console.log(err, "user err")
-            })
-            // console.log(phoneAuthSnapshot);
-            // // AsyncStorage.setItem('loggedin', 'true');
-            // this.confirmCode(phoneAuthSnapshot.verificationId, phoneAuthSnapshot.code)
-            // getCurrentUser(); // Checking if the user is logged-in and it have the user as current user.
-            break;
-        }
-      }, (error) => {
-        console.log(error);
-        console.log(error.verificationId);
-      }, (phoneAuthSnapshot) => {
-        console.log(phoneAuthSnapshot, "user signin");
-      });
+    firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password).
+      then(() => {
+        let user = firebase.auth().currentUser;
+        // console.log("-..........-", user)
+        // payload.history.navigate('Login');
+        this.history.navigate("CreateProfile");
 
 
 
+        // await AsyncStorage.setItem('User', phoneNumber);
+        // firebase.database().ref(`users/${user.uid}`).child('userAuth').set(user.uid);
+        dispatch(signUpSucceed(payload, user.uid, phoneNumber));
+      })
+      .catch(err => {
+        dispatch(signUpError(err.message));
+        // payload.history.navigate('signIn', err);
+        this.history.navigate("signIn");
+        // console.log("SAAAAAAAAADDDD", err)
+      })
 
-
-    // firebase.auth().verifyPhoneNumber(payload.phoneNumber)
-    // .on('state_changed',(phoneAuthSnapshot)=>{
-    //   console.log(phoneAuthSnapshot,"check ")
-    // })
-
-    // this.history = payload.history;
-    // let phoneNumber = payload.phoneNumber
-    // return firebase
-    //   .auth()
-    //   .signInWithPhoneNumber(payload.phoneNumber)
-    //   .then(async confirmResult => {
-    //     console.log(confirmResult, "fetch user success")
-    //     user = firebase.auth().currentUser;
-    //     console.log(user, "check user is still avaialable")
-    //     this.history.navigate("verifySignIn");
-
-    //     await AsyncStorage.setItem('user', phoneNumber)
-    //     firebase
-    //       .database()
-    //       .ref(`users/${phoneNumber}`).child('userAuth')
-    //       .set(confirmResult._auth._user._user.uid);
-
-    //     dispatch(signUpSucceed(confirmResult, confirmResult._auth._user._user.uid,phoneNumber));
-
-
-    //   })
-    //   .catch(error => {
-    //     // return AuthActions.signInRejected(error);
-    //     console.log(error, "error when signin ")
-    //     dispatch(signUpError(error))
-    //   });
   }
 }
+
+function signUpRequest() {
+  return {
+    type: ActionTypes.SIGNUP_PROGRESS
+  }
+}
+
+function signUpSucceed(payload, uid, phoneNumber) {
+  // console.log(payload, uid, phoneNumber, "xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+  return {
+    type: ActionTypes.SIGNIN_SUCCESSFUL,
+    payload: payload,
+    uid,
+    phoneNumber
+  }
+}
+export function signUpError(message) {
+  return {
+    type: ActionTypes.SIGNUP_ERROR,
+    message
+  }
+}
+
+// export function signInAc(payload) {
+// return  dispatch => {
+//   // let phoneNumber = payload.phoneNumber;
+//   // this.history = payload.history;
+//   // let email = payload.email;
+//   // let password = payload.password;
+//   firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password).
+//     then(() => {
+//       let user = firebase.auth().currentUser;
+//        AsyncStorage.setItem('user', phoneNumber)
+//       // firebase
+//         .database()
+//         .ref(`users/${phoneNumber}`).child('userAuth')
+//         .set(user);
+
+//       path.navigate('Login');
+//     })
+//     .catch(err => {
+//       // dispatch(signUpError(err.message));
+//       // path.navigate('SignUp');
+//     })
+
+// }
+//   return dispatch => {
+//     // dispatch(signUpRequest());
+//     firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password).
+//       then(() => {
+//         let user = firebase.auth().currentUser;
+//         console.log("-..........-", user)
+//         payload.history.navigate('Login');
+
+
+
+//         //await AsyncStorage.setItem('User', user);
+//         firebase.database().ref(`users/${phoneNumber}`).child('userAuth').set(user);
+//         dispatch(signUpSucceed());
+//       })
+//       .catch(err => {
+//         // dispatch(signUpError(err.message));
+//         payload.history.navigate('signIn');
+//       })
+//   }
+// }
+
 
 
 
@@ -228,31 +218,89 @@ export function signInAc(payload) {
 //   // 3102556867
 //   //03472197728
 // }
+
+
+
+
+export function verifylogin(payload, path) {
+  return dispatch => {
+    dispatch(signInRequest());
+    // this.history = payload.history;
+    firebase.auth().signInWithEmailAndPassword(payload.email, payload.Password)
+      .then(() => {
+        let user = firebase.auth().currentUser;
+        // await AsyncStorage.setItem('User', user.uid)
+
+        let obj = {
+          // name: name,
+          uid: user.uid,
+          email: user.email
+        }
+        // if (user) {
+        //   // User is signed in.
+        //   firebase.auth().onAuthStateChanged(async function (user) {
+        //     if (user) {
+        //       console.log(user, "user available")
+        //       console.log(user._auth._user._user.uid, "uid")
+        //       await AsyncStorage.setItem('User', user._auth._user._user.uid)
+
+        //       // ...
+        //     } else {
+        //       // ...
+        //       console.log('errorss')
+        //     }
+        //   });
+        // } else {
+        //   // No user is signed in.
+        // }
+
+
+        path.navigate("app");
+        dispatch(signInSucced(obj));  //done
+        // console.log(user, "///////////////////////////////////////////////////////////////////////")
+
+
+      })
+
+      .catch((err) => {
+        dispatch(signInError(err.message));
+        path.navigate("Login");
+        // console.log("1234455667789900----", err.message)
+      })
+  }
+}
+
 function signInRequest() {
   return {
     type: ActionTypes.SIGNIN_PROGRESS
   }
 }
-function signUpSucceed(data, uid, phoneNumber) {
-  console.log(data, uid, "xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+function signInSucced(payload) { //add this line and this line include phoneNumebr
+  // console.log(payload, "Signin User PHONE NUMBER FOR SHOW the data in profile")
   return {
-    type: ActionTypes.SIGNIN_SUCCESSFUL,
-    payload: data,
-    uid,
-    phoneNumber
+    type: ActionTypes.SIGNIN_SUCCESSFUL_VERIFY,
+    payload
   }
 }
-function signUpError(error) {
+
+// function signInError(me) {
+//   return {
+//     type: ActionTypes.SIGNIN_REJECTED,
+//     paylod: me
+//   }
+// }
+function signInError(error) {
   return {
     type: ActionTypes.SIGNIN_REJECTED,
     error
   }
 }
 // export function signUpErrorAlert() {
-//     return {
-//         type: actionTypes.SIGNUP_ERROR_ALERT
-//     }
+//   return {
+//     type: actionTypes.SIGNUP_ERROR_ALERT
+//   }
 // }
+
 
 
 
