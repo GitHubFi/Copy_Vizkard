@@ -156,6 +156,7 @@ class SearchFriend extends Component {
                 <ListItem avatar
                 //    onPress={() =>
                 //  this.props.navigation.navigate("ChatScreen", item)}
+                //adsf
                 >
                   <Left>
                     <Thumbnail
