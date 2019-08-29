@@ -3,7 +3,8 @@ import { Text, StyleSheet, View, Alert } from 'react-native';
 import { Container, Header, Content, Left, Body, Right, Button, Icon, Title, Item, Input, Label, Spinner } from 'native-base';
 import { connect } from 'react-redux';
 import firebase from "react-native-firebase";
-import { profileAction } from '../../Store/Actions/AppAction'
+import { profileAction, GetUserAction } from '../../Store/Actions/AppAction'
+
 
 
 
@@ -14,10 +15,12 @@ class Edit_Experience extends Component {
             // experience: '',
             // company_name: '',
             submit: false,
-            skill_name: '',
+            editWork: '',
+            editExperience: '',
             Experience_name: '',
-            delete: false
-
+            delete: false,
+            editSpinner: false,
+            editexpspinner: false
 
         }
 
@@ -25,98 +28,106 @@ class Edit_Experience extends Component {
 
     componentWillMount() {
         const id = this.props.userID.uid
-        this.props.profileData(id);
+        this.props.GetExperience(id);
     }
 
 
 
 
-    submit = () => {
-        const { skill_name, Experience_name } = this.state;
+    editWork = () => {
+        const { editWork, } = this.state;
         // const Experience = this.state.Experience_name
         const userID = this.props.userID.uid;
         const editExp = this.props.name;
-        const Experience = this.props.Experience
-
-
-        if (skill_name !== null) {
-
-
-            firebase.database().ref(`users/${userID}`).child(`Experience`).child(editExp).update({
-
-                Company: skill_name,
-                Experience: Experience
-
-
-
+        if (editWork === '') {
+            Alert.alert("please enter your work space");
+        } else {
+            var ref = firebase.database().ref("users").child(userID).child("Experience");
+            ref.orderByChild("Company").equalTo(editExp).once("value", function (snapshot) {
+                snapshot.forEach(function (employee) {
+                    employee.ref.update({ Company: editWork });
+                });
             }).then(() => {
                 this.setState({
-                    skill_name: '',
-                    submit: true,
-                    editExp: ''
+                    editWork: '',
+                    editSpinner: true
                 });
 
                 setTimeout(() => {
-
                     Alert.alert('', "your skill has been successfully changed");
                     this.setState({
-                        submit: false
+                        editSpinner: false
                     })
                 }, 3000);
             }).catch((err) => {
-                Alert.alert("", err);
+                Alert.alert("error", err);
             });
-
         }
-        else {
+    }
+    Edit_Experience = () => {
+        const { editExperience, } = this.state;
+        // const Experience = this.state.Experience_name
+        const userID = this.props.userID.uid;
+        const editExp = this.props.Experience;
+        if (editExperience === '') {
+            Alert.alert("please enter your experience");
+        } else {
+            var ref = firebase.database().ref("users").child(userID).child("Experience");
+            ref.orderByChild("Experience").equalTo(editExp).once("value", function (snapshot) {
+                snapshot.forEach(function (employee) {
+                    employee.ref.update({ Experience: editExperience });
+                });
+            }).then(() => {
+                this.setState({
+                    editExperience: '',
+                    editexpspinner: true
+                });
 
+                setTimeout(() => {
+                    Alert.alert('', "your skill has been successfully changed");
+                    this.setState({
+                        editexpspinner: false
+                    })
+                }, 3000);
+            }).catch((err) => {
+                Alert.alert("error", err);
+            });
         }
-
-
-
     }
 
     delete_Experience = () => {
 
         const userID = this.props.userID.uid;
-        const editExp = this.props.name;
-
+        const editWork = this.props.name;
+        const editExp = this.props.Experience;
 
         Alert.alert(
             `Are you sure delete ?`,
             '',
             [
                 ,
-                {
-                    text: 'Cancel',
-                    onPress: () => {
-
-                    }
-                    ,
-                    style: 'cancel',
-                },
-                {
+                { text: 'Cancel', onPress: () => { }, style: 'cancel', }, {
                     text: 'Confirm ',
                     onPress: () => {
-                        let delteRef = firebase.database().ref(`users/${userID}`).child(`Experience/${editExp}`)
-                        delteRef.remove()
+                        var ref = firebase.database().ref("users").child(userID).child("Experience");
+                        ref.orderByChild("Company").equalTo(editWork).once("value", function (snapshot) {
+                            snapshot.forEach(function (employee) {
+                                employee.ref.remove({ Company: editWork, Experience: editExp });
+                            });
+                        })
                             .then(() => {
-                                this.setState({
-
-                                    delete: true
-                                });
-
-
+                                this.setState({ delete: true });
                                 setTimeout(() => {
-
-                                    Alert.alert('', "your skill has been successfully changed");
+                                    Alert.alert('', "your Experience has been deleted");
                                     this.setState({
                                         delete: false
                                     });
+                                    this.props.GetExperience(userID);
+                                    this.props.profileData(userID);
 
                                 }, 3000);
                             }).catch((err) => {
-                                Alert.alert("", err);
+                                Alert.alert("error", err);
                             });
 
                     }
@@ -132,19 +143,64 @@ class Edit_Experience extends Component {
 
         return (
             <View
-                style={{ flex: 0.3, marginTop: 50, justifyContent: "center", textAlign: "center", padding: 10, margin: 20 }}>
+                style={{ flex: 1, marginTop: 0, justifyContent: "center", textAlign: "center", padding: 20, }}>
+                <View style={{ padding: 10, }} >
+                    <Item floatingLabel >
+                        <Label>Edit Your work space {this.props.name}</Label>
+                        <Input
+                            onChangeText={editWork => this.setState({ editWork })}
+                            value={this.state.editWork} />
+                    </Item>
 
+                </View>
                 {
-                    (this.state.delete === true) ?
+                    (this.state.editSpinner === true) ?
 
                         <Spinner color='blue' />
 
                         : null
                 }
-                <Button block danger style={{ padding: 10 }}
-                    onPress={this.delete_Experience}>
+                <Button block info
+                    onPress={this.editWork}>
+                    <Text>Update</Text>
+                </Button>
+                <View style={{ padding: 10 }}>
+                    <Item floatingLabel>
+                        <Label>Edit Your Experience {this.props.Experience}</Label>
+                        <Input
+                            onChangeText={editExperience => this.setState({ editExperience })}
+                            value={this.state.editExperience} />
+                    </Item>
+
+                </View>
+                {
+                    (this.state.editexpspinner === true) ?
+
+                        <Spinner color='blue' />
+
+                        : null
+                }
+                <Button block info
+                    style={{ padding: 10, marginBottom: 20 }}
+                    onPress={this.Edit_Experience}>
+                    <Text>Update Experience</Text>
+                </Button>
+                {/* <View style={{ padding: 10, }}> */}
+                <Button block danger
+                    onPress={this.delete_Experience}
+                    style={{ padding: 10, }}>
                     <Text>Remove Experience</Text>
                 </Button>
+                {
+                    (this.state.delete === true) ?
+
+                        <Spinner color='red' />
+
+                        : null
+                }
+
+                {/* </View> */}
+
 
             </View>
         );
@@ -165,10 +221,11 @@ function mapStateToProps(state) {
         isError: state.authReducer.isError,
 
         errorTest: state.authReducer.errorTest,
-
+        All_Experience: state.appReducer.All_Experience
 
     }
 }
+
 function mapDispatchToProps(dispatch) {
     return {
         verifyCode: (payload, path) => {
@@ -177,6 +234,9 @@ function mapDispatchToProps(dispatch) {
         profileData: (userID) => {
             dispatch(profileAction(userID));
         },
+        GetExperience: (userID) => {
+            dispatch(GetUserAction(userID))
+        }
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Edit_Experience);

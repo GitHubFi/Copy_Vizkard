@@ -3,7 +3,7 @@ import { Text, StyleSheet, View, Alert, Dimensions } from 'react-native';
 import { Container, Header, Content, Left, Body, Right, Button, Icon, Title, Item, Input, Label, Spinner, List, ListItem } from 'native-base';
 import { connect } from 'react-redux';
 import firebase from "react-native-firebase";
-import { profileAction } from '../../Store/Actions/AppAction';
+import { profileAction, getSkillAction, getSkillnewarrayAction } from '../../Store/Actions/AppAction';
 const { width, height } = Dimensions.get("window");
 
 
@@ -17,7 +17,8 @@ class Edit_Skill extends Component {
             submit: false,
             skill_name: '',
             Experience_name: '',
-            delete: false
+            delete: false,
+            edit: false
 
 
         }
@@ -27,87 +28,14 @@ class Edit_Skill extends Component {
     componentWillMount() {
         const id = this.props.userID.uid
         this.props.profileData(id);
+        this.props.getSkill(id);
     }
 
-
-
-
-    submit = () => {
-        const { skill_name, Experience_name } = this.state;
-        // const Experience = this.state.Experience_name
-        const userID = this.props.userID.uid;
-        const editExp = this.props.name;
-        const Experience = this.props.Experience
-
-
-        if (skill_name !== null) {
-
-
-            firebase.database().ref(`users/${userID}`).child(`Experience`).child(editExp).update({
-
-                Company: skill_name,
-                Experience: Experience
-
-
-
-            }).then(() => {
-                this.setState({
-                    skill_name: '',
-                    submit: true,
-                    editExp: ''
-                });
-
-                setTimeout(() => {
-
-                    Alert.alert('', "your skill has been successfully changed");
-                    this.setState({
-                        submit: false
-                    })
-                }, 3000);
-            }).catch((err) => {
-                Alert.alert("", err);
-            });
-
-        }
-        else {
-
-        }
-
-        // if (Experience_name !== null) {
-        //     firebase.database().ref(`users/${userID}`).child('Experience').child(editExp).update({
-
-        //         Experience: Experience_name
-
-
-        //     })
-        //         .then(() => {
-        //             this.setState({
-        //                 skill_name: '',
-        //                 submit: true
-        //             });
-
-        //             setTimeout(() => {
-
-        //                 Alert.alert('', "your skill has been successfully submitted");
-        //                 this.setState({
-        //                     submit: false
-        //                 })
-        //             }, 3000);
-        //         }).catch((err) => {
-        //             Alert.alert("", err);
-        //         });
-        // } else {
-
-        // }
-
-    }
 
     delete_Experience = () => {
 
         const userID = this.props.userID.uid;
         const editSkill = this.props.value;
-
-
         Alert.alert(
             `Are you sure delete ?`,
             '',
@@ -116,8 +44,7 @@ class Edit_Skill extends Component {
                 {
                     text: 'Cancel',
                     onPress: () => {
-                        // this.props.navigation.navigate('Homege')
-                        // console.log('Cancel Pressed')
+
                     }
                     ,
                     style: 'cancel',
@@ -125,67 +52,69 @@ class Edit_Skill extends Component {
                 {
                     text: 'Confirm ',
                     onPress: () => {
-                        let delteRef = firebase.database().ref(`users/${userID}`).child(`Skills/${editSkill}`)
-                        delteRef.remove()
-                            .then(() => {
-                                this.setState({
+                        var ref = firebase.database().ref("users").child(userID).child("Skills");
+                        ref.orderByChild("Skill").equalTo(editSkill).once("value", function (snapshot) {
+                            snapshot.forEach(function (employee) {
+                                employee.ref.remove({ Skill: editSkill });
+                            })
+                        }).then(() => {
+                            // this.props.getSkillnewarray()
+                            this.setState({
 
-                                    delete: true
-                                });
-                                 setTimeout(() => {
-
-                                    Alert.alert('', "your skill has been deleted form your profile");
-                                    this.setState({
-                                        delete: false
-                                    });
-                                }, 3000);
-                            }).catch((err) => {
-                                Alert.alert("", err);
+                                delete: true
                             });
+                            setTimeout(() => {
+                                 this.props.getSkill(userID)
+
+                                Alert.alert('', "your skill has been deleted");
+                                this.setState({
+                                    delete: false
+                                });
+                            }, 2000);
+                        }).catch((err) => {
+                            Alert.alert("", err);
+                        });
 
                     }
                 }
             ],
             { cancelable: false },
         );
-        // let msgId = firebase
-        //     .database()
-        //     .ref(`users/${userID}`)
-        //     .child('Skills')
-        //     .push().key;
+
+    }
+    submit = () => {
+        const { skill_name, } = this.state;
+
+        const userID = this.props.userID.uid;
+        const editExp = this.props.value;
+        if (skill_name === '') {
+            Alert.alert("please enter your skill")
+        } else {
+            var ref = firebase.database().ref("users").child(userID).child("Skills");
+            ref.orderByChild("Skill").equalTo(editExp).once("value", function (snapshot) {
+                snapshot.forEach(function (employee) {
+                    employee.ref.update({ Skill: skill_name });
+                });
+            }).then(() => {
+                this.setState({
+                    edit: true,
+                    skill_name: ''
+                });
+
+                setTimeout(() => {
+                    Alert.alert('', "your skill has been successfully updated");
+                    this.setState({
+                        edit: false
+                    })
+                }, 3000);
+            }).catch((err) => {
+                Alert.alert("", err);
+            });
 
 
-        // let updates = {};
-        // let message = {
-        //     Skill: skill_name,
 
+        }
 
-        // };
-
-        // updates[
-        //     `users/${userID}/Skills/${msgId}`
-        // ] = message;
-
-        // firebase
-        //     .database()
-        //     .ref()
-        //     .update(updates)
-        //     .then(() => {
-        //         this.setState({
-        //             skill_name: '',
-        //             submit: true
-        //         });
-
-        //         setTimeout(() => {
-
-        //             Alert.alert('', "your skill has been successfully submitted");
-        //             this.setState({
-        //                 submit: false
-        //             })
-        //         }, 3000);
-        //     }).catch((err) => {
-        //         Alert.alert("", err);
-        //     });
     }
 
     render() {
@@ -194,47 +123,44 @@ class Edit_Skill extends Component {
         return (
             <View
                 style={{ flex: 0.3, marginTop: 50, justifyContent: "center", textAlign: "center", padding: 10, margin: 20 }}>
+                <View style={{ paddingBottom: 20, padding: 10 }}>
+                    <Item floatingLabel>
+                        <Label>Edit Your {this.props.value} Skill</Label>
+                        <Input
+                            onChangeText={skill_name => this.setState({ skill_name })}
+                            value={this.state.skill_name} />
+                    </Item>
 
-
-
-                {/* <Text
-                        style={{
-                            fontSize: width / 30,
-                            paddingTop: 0,
-                            paddingBottom: 0,
-                            fontWeight: "normal",
-                            color: "#000"
-                        }}
-                    >
-                        {this.props.value}
-                    </Text> */}
-
-
-
-
-
-                {/* {
-                    (this.state.submit === true) ?
-
-                        <Spinner color='blue' />
-
-                        : null
-                } */}
-                {/* <Button block info style={{ padding: 10, marginBottom: 30 }}
-                    onPress={this.submit}>
-                    <Text>Edit Work Experience</Text>
-                </Button> */}
+                </View>
                 {
-                    (this.state.delete === true) ?
+                    (this.state.edit === true) ?
 
                         <Spinner color='blue' />
 
                         : null
                 }
-                <Button block danger style={{ padding: 10 }}
-                    onPress={this.delete_Experience}>
-                    <Text>Remove {this.props.value} skill form profile</Text>
+                <Button block info
+                    onPress={this.submit}>
+                    <Text>Update</Text>
                 </Button>
+
+
+
+                <View style={{ paddingTop: 20, }}>
+                    <Button block danger style={{ padding: 10 }}
+                        onPress={this.delete_Experience}>
+                        <Text>Remove {this.props.value} skill </Text>
+                    </Button>
+                    {
+                        (this.state.delete === true) ?
+
+                            <Spinner color='red' />
+
+                            : null
+                    }
+
+                </View>
+
 
             </View>
         );
@@ -246,17 +172,11 @@ function mapStateToProps(state) {
     return {
         verifyCode: state.authReducer.currentUser,
         phoneNumber: state.authReducer.phoneNumber,
-
-
+        All_Skill: state.appReducer.All_Skill,
         userID: state.authReducer.userID,
-
         isProgress: state.authReducer.isProgress,
-
         isError: state.authReducer.isError,
-
         errorTest: state.authReducer.errorTest,
-
-
     }
 }
 function mapDispatchToProps(dispatch) {
@@ -267,6 +187,12 @@ function mapDispatchToProps(dispatch) {
         profileData: (userID) => {
             dispatch(profileAction(userID));
         },
+        getSkill: (userID) => {
+            dispatch(getSkillAction(userID));
+        },
+        getSkillnewarray: () => {
+            dispatch(getSkillnewarrayAction())
+        }
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Edit_Skill);

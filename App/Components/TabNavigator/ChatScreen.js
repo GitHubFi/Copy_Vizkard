@@ -18,6 +18,7 @@ const { height, width } = Dimensions.get("window");
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { connect } from 'react-redux';
 import { All_Message_Action } from '../../Store/Actions/AppAction';
+
 class ChatScreen extends Component {
   constructor(props) {
     super(props);
@@ -87,9 +88,9 @@ class ChatScreen extends Component {
     this.setState({
       userName: meraj
     })
-   
+
     // const message = this.state.messageList
-    
+
   }
   convertDate = time => {
     var timestamp = time.toString().substring(0, 10)
@@ -138,6 +139,8 @@ class ChatScreen extends Component {
           };
         });
       });
+    // const user_ID = this.state.person.phone
+    // this.props.Get_All_Message(userID, user_ID)
 
   }
   sendMessage = async () => {
@@ -284,7 +287,7 @@ class ChatScreen extends Component {
                 placeholder="Type Message..."
                 multiline={true}
                 numberOfLines={0}
-                autoFocus={true}
+                // autoFocus={true}
               />
               <TouchableOpacity onPress={this.sendMessage}>
                 <Text
@@ -315,15 +318,17 @@ class ChatScreen extends Component {
   }
 }
 function mapStateToProps(state) {
+  console.log(state.authReducer.All_Message, "state.authReducer.All_Message")
   return {
     phoneNumber: state.authReducer.phoneNumber,
     userID: state.authReducer.userID,
+    All_Message: state.authReducer.All_Message
   }
 }
 function mapDispatchToProps(dispatch) {
   return {
-    // All_Message: (array) => {
-    //   dispatch(All_Message_Action(array));
+    // Get_All_Message: (user, user_ID) => {
+    //   dispatch(All_Message_Action(user, user_ID));
     // },
   }
 }

@@ -59,7 +59,7 @@ export function signInAc(payload) {
         let user = firebase.auth().currentUser;
         // console.log("-..........-", user)
         // payload.history.navigate('Login');
-        this.history.navigate("CreateProfile");
+        this.history.navigate("create_profile");
 
 
 

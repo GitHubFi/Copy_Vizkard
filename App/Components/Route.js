@@ -7,7 +7,7 @@ import {
   DrawerItems
 } from "react-navigation";
 import { AppState } from "react-native";
-import { Icon } from "native-base";
+import { Icon, Thumbnail } from "native-base";
 import Profile from "./TabNavigator/Profile";
 import MessageList from "./TabNavigator/MessageList";
 import GlobalSocial from "./TabNavigator/GlobalSocial";
@@ -56,6 +56,17 @@ const CustomDrawerComponent = props => (
         Hi, we are here to {"\n"}
         assist you.
       </Text>
+      {/* <View style={{
+        height: 150,
+        // backgroundColor: "#0071ce",
+        alignItems: "center",
+        paddingTop: 40,
+        padding:15,
+        justifyContent: "center"
+      }}>
+
+        <Thumbnail source={{ uri: "https://firebasestorage.googleapis.com/v0/b/vizkard-bb042.appspot.com/o/post%2F8VHaHbTTybGEVFbbGFKKpVMsAPW.jpg?alt=media&token=4de14fd2-08a2-420e-a126-6a4aa855d7e4" }} />
+      </View> */}
     </View>
     <ScrollView>
       <DrawerItems {...props} />
@@ -139,7 +150,7 @@ const CustomDrawerComponent = props => (
 
                         }))
 
-                       
+
 
                         // store.dispatch({
 
@@ -353,11 +364,11 @@ const AppStackNavigator = createStackNavigator({
   AppTabNavigator
 });
 
-const createProfileStack = createStackNavigator({
-  CreateProfile: {
-    screen: CreateProfile
-  }
-});
+// const createProfileStack = createStackNavigator({
+//   CreateProfile: {
+//     screen: CreateProfile
+//   }
+// });
 
 
 
@@ -367,7 +378,7 @@ export default (AppDrawerNavigator = createDrawerNavigator(
   {
 
     "           Go Home": AppStackNavigator,
-    "          ": createProfileStack,
+    // "          ": createProfileStack,
 
     Notifications: {
       screen: Notification,

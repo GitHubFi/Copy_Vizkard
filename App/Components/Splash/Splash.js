@@ -29,7 +29,7 @@ export default class SplashScreen extends Component {
       //this.reset('signIn')
       this.loadApp();
 
-    }, 100)
+    }, 800)
   }
 
   // componentWillMount() {

@@ -40,14 +40,14 @@ export function profileAction(userID) {
 // export default class AppAction {
 //   // create profile //
 //   static createProfileProgress(obj) {
-    // console.log(obj);
+// console.log(obj);
 //     return {
 //       type: ActionTypes.CREATE_PROFILE_PROGRESS,
 //       payload: obj
 //     };
 //   }
 //   static createProfileSuccess(obj) {
-    // console.log(obj);
+// console.log(obj);
 //     return {
 //       type: ActionTypes.CREATE_PROFILE_SUCCESS,
 //       payload: obj
@@ -62,7 +62,7 @@ export function profileAction(userID) {
 
 //   // Get Profile //
 //   static GetProfileProgress() {
-    // console.log(obj);
+// console.log(obj);
 //     return {
 //       type: ActionTypes.GET_PROFILE_PROGRESS,
 //       payload: "ammar"
@@ -160,7 +160,7 @@ export function getAllUser() {
       let arrList = [];
 
       userListKeys.map(i => {
-        if (userList[i]) {
+        if (userList[i].userDetail) {
           let obj = {
             // uid: userList[i].userAuth,
             address: userList[i].userDetail.address,
@@ -173,6 +173,7 @@ export function getAllUser() {
             phoneNumber: userList[i].userDetail.phoneNumber,
             website: userList[i].userDetail.website,
             uid: userList[i].userDetail.uid,
+            url: userList[i].userDetail.url
             // friend_list: userList[i].FriendList,
 
           }
@@ -313,19 +314,25 @@ function GetRequestUser(payload) {
   }
 }
 
-export function All_Message_Action(array) {
-  return dispatch => {
+// export function All_Message_Action(user, user_ID) {
+//   return dispatch => {
 
-    dispatch(Get_All_Messsage(array))
-  }
-}
 
-function Get_All_Messsage(array) {
-  return {
-    type: ActionTypes.GET_ALL_MESSAGES,
-    payload: array
-  }
-}
+//     dispatch(Get_All_Messsage(array))
+
+
+
+
+
+//   }
+// }
+
+// function Get_All_Messsage(array) {
+//   return {
+//     type: ActionTypes.GET_ALL_MESSAGES,
+//     payload: array
+//   }
+// }
 
 
 export function GetUserAction(userID) {
@@ -333,13 +340,18 @@ export function GetUserAction(userID) {
     // console.log(userID, 'phonennnnn')
     dispatch(GetProfileProgress());
 
-    firebase.database().ref(`users`).child(userID).child('Experience').on('child_added', snapshot => {
+    firebase.database().ref(`users`).child(userID).child('Experience').on('value', snapshot => {
       let user = snapshot.val();
-      // let array = []
-      // array.push(user)
+      if (user !== null) {
+        let ExperienceList = Object.values(user)
+        let array = []
+        array.push(ExperienceList)
 
 
-      dispatch(GetExperience(user))
+        dispatch(GetExperience(ExperienceList))
+      }
+      else { }
+
     })
   }
 }
@@ -350,5 +362,50 @@ function GetExperience(array) {
   return {
     type: ActionTypes.GET_Experience_SUCCESS,
     payload: array
+  };
+}
+
+export function getSkillAction(userID) {
+  return dispatch => {
+    // console.log(userID, 'phonennnnn')
+    dispatch(GetProfileProgress());
+
+    firebase.database().ref(`users`).child(userID).child('Skills').on('value', snapshot => {
+      let user = snapshot.val();
+      if (user !== null) {
+        let skillkeys = Object.values(user);
+        console.log("add skill", skillkeys)
+        let array = []
+        array.push(skillkeys)
+
+        dispatch(GetSkill(skillkeys));
+      } else {
+
+      }
+
+    })
+  }
+}
+
+function GetSkill(skillkeys) {
+  // console.log(array);
+  return {
+    type: ActionTypes.GET_Skill_SUCCESS,
+    payload: skillkeys
+  };
+}
+
+export function getSkillnewarrayAction() {
+  return dispatch => {
+    dispatch(GET_Skill_NEW_ARRAY())
+  }
+
+}
+
+function GET_Skill_NEW_ARRAY() {
+  // console.log(array);
+  return {
+    type: ActionTypes.GET_Skill_NEW_ARRAY,
+
   };
 }

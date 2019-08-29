@@ -14,6 +14,7 @@ const { width, height, scale, fontScale } = Dimensions.get("window");
 import firebase from "react-native-firebase";
 import User from "../SignIn/User";
 import { connect } from 'react-redux';
+
 const arrList = [
   {
     imageUrl:
@@ -113,7 +114,7 @@ class MessageList extends Component {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate("Profile")}
             style={{ marginRight: width / 28 }}
           >
             <Image
@@ -167,7 +168,7 @@ class MessageList extends Component {
       });
   }
   render() {
-
+    console.log(this.state.users)
     return (
       <View style={{
         backgroundColor: "#ffffff", flex: 1,
@@ -182,7 +183,7 @@ class MessageList extends Component {
                   this.props.navigation.navigate("ChatScreen", item)
                 }>
                   <Left>
-                    <Thumbnail source={{ uri: 'https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg' }} />
+                    <Thumbnail source={{ uri: item.url ? item.url : "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }} />
                   </Left>
                   <Body>
                     <Text style={{ fontSize: width / 20, }}> {item.name}</Text>
@@ -191,16 +192,15 @@ class MessageList extends Component {
                   <Right>
 
                     {/* <Text>3443</Text> */}
-
-
-
                   </Right>
                 </ListItem>
               </List>
               : null
+
           )}
           keyExtractor={item => item.uid}
         />
+
 
       </View>
 

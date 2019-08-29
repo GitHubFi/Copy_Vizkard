@@ -7,14 +7,14 @@ import Entypo from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 // import Icon from "react-native-vector-icons/Ionicons";
 import { connect } from 'react-redux';
-class Feedback extends Component {
+class ShowPromote extends Component {
     constructor() {
         super();
         this.state = {
             name: '',
             email: '',
             contactNo: '',
-            subject: '',
+            subject: 'I would like to promote my profile in the Vizkard community.',
             description: ''
 
 
@@ -92,26 +92,7 @@ class Feedback extends Component {
                 keyboardDismissMode="interactive"
                 keyboardShouldPersistTaps="handled"
             >
-                <Header
-                    style={{ backgroundColor: '#0071CE' }}
-                    androidStatusBarColor="#0071CE">
-                    <Left style={{ flex: 1 }}>
-                        <TouchableOpacity onPress={() => this.props.navigation.navigate("Profile")}>
-                            <Icon name="arrow-back" style={{ color: "#fff", marginLeft: 10 }} />
-                        </TouchableOpacity>
 
-                    </Left>
-                    <Body style={{ flex: 1 }}>
-                        <Title
-                            style={{ alignSelf: "center" }}
-                        // style={{ alignSelf: 'center', alignContent: "center", textAlign: 'center', justifyContent: 'center' }}
-                        >Notifications</Title>
-                    </Body>
-                    <Right style={{ flex: 1 }}>
-                        {/* <Icon name='menu' /> */}
-                    </Right>
-
-                </Header>
                 <View style={{ flex: 1 }}>
                     <View
                         style={{
@@ -131,7 +112,7 @@ class Feedback extends Component {
                             }}
                         />
                     </View>
-                    <View
+                    {/* <View
                         style={{
                             flex: 0.2,
                             justifyContent: "center",
@@ -139,11 +120,9 @@ class Feedback extends Component {
                         }}
                     >
                         <Text style={{ textAlign: 'center' }}>
-                            Your feedback is important to us and give us valuable {"\n"}
-                            insight to continuously improve and serve you better. {"\n"}
-                            For suggestions and feedback,fill the form below.
+                           Promote yourself
              </Text>
-                    </View>
+                    </View> */}
                     <View style={{ flex: 0.6, backgroundColor: '#eeeeee', justifyContent: 'space-between', alignItems: 'center' }}>
                         <View
                             style={{
@@ -167,7 +146,7 @@ class Feedback extends Component {
                                 onChangeText={name => this.setState({ name })}
                             />
                         </View>
-                        <View
+                        {/* <View
                             style={{
                                 flex: 0.2,
                                 flexDirection: "row",
@@ -188,7 +167,7 @@ class Feedback extends Component {
                                 keyboardType={"email-address"}
                                 onChangeText={email => this.setState({ email })}
                             />
-                        </View>
+                        </View> */}
                         <View
                             style={{
                                 flex: 0.2,
@@ -230,6 +209,9 @@ class Feedback extends Component {
                                 placeholder="Subject"
                                 style={{ color: "#24516e" }}
                                 // secureTextEntry
+                                multiline={true}
+                                numberOfLines={0}
+                                value={this.state.subject}
                                 onChangeText={subject => this.setState({ subject })}
                             />
                         </View>
@@ -284,5 +266,5 @@ function mapDispatchToProps(dispatch) {
         // contactComponent: obj => dispatch(contactAction(obj))
     }
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Feedback);
+export default connect(mapStateToProps, mapDispatchToProps)(ShowPromote);
 {/* <MaterialCommunityIcons name={"account-badge"} size={25} style={{color:'#0071ce'}} /> */ }

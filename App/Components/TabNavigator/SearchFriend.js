@@ -57,7 +57,7 @@ class SearchFriend extends Component {
           <Demo />
 
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate("Profile")}
             style={{ marginRight: width / 28 }}
           >
             <Image
@@ -158,7 +158,10 @@ class SearchFriend extends Component {
                 //  this.props.navigation.navigate("ChatScreen", item)}
                 >
                   <Left>
-                    <Thumbnail source={{ uri: 'https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg' }} />
+                    <Thumbnail
+                      // source={{ uri: 'https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg' }}
+                      source={{ uri: item.url ? item.url : "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }}
+                    />
                   </Left>
                   <Body>
                     <Text style={{ fontSize: width / 20, }}>{item.name}</Text>
@@ -175,93 +178,7 @@ class SearchFriend extends Component {
 
                 </ListItem>
               </List>
-              // <View
-              //   style={{
-              //     flex: 1,
-              //     backgroundColor: "#0071ce",
-              //     flexDirection: "row",
-              //     height: height / 6,
-              //     marginRight: -width / 8
-              //   }}
-              // >
-              //   <View style={{ flex: 0.3 }}>
-              //     <Image
-              //       source={{ uri: "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }}
-              //       // resizeMode="contain"
-              //       style={{ width: width / 3, height: height / 6 }}
-              //     />
-              //   </View>
-              //   <View style={{ flex: 0.6, paddingLeft: width / 0 }}>
-              //     <View style={{
-              //       justifyContent: "center",
-              //       paddingTop: height / 24,
-              //     }}>
-              //       <Text style={{ color: "#fff", fontSize: width / 20 }}>
-              //         {" "}
-              //         {item.name}
-              //       </Text>
-              //       <Text style={{ color: "#fff" }}> {item.occupation} / {item.company}</Text>
-              //       <Text style={{ color: "#fff" }}> {item.email} -  {item.phoneNumber}</Text>
-              //     </View>
-              //     <View
-              //       style={{
-              //         alignSelf: "flex-end",
-              //         flexDirection: "row",
-              //         paddingRight: width / 20,
-              //         //   backgroundColor:'yellow',
-              //         height: height / 20,
-              //         marginTop: width / 24
-              //       }}
-              //     >
-              //       <TouchableOpacity
-              //       // onPress={() => navigation.toggleDrawer()}
-              //       //   marginTop:width/24,
-              //       // style={{ paddingTop:width/36 , }}
-              //       >
-              //         <Image
-              //           source={require("../../../assets/share1.png")}
-              //           style={{
-              //             width: width / 15,
-              //             height: height / 28,
-              //             marginLeft: 8, paddingBottom: 10
-              //           }}
-              //         />
-              //       </TouchableOpacity>
 
-              //       <TouchableOpacity
-              //       // onPress={() => navigation.toggleDrawer()}
-              //       // style={{ marginTop:width/36, }}
-              //       >
-              //         <Image
-              //           source={require("../../../assets/chat1.png")}
-              //           style={{
-              //             width: width / 15,
-              //             height: height / 30,
-              //             marginLeft: 8,
-              //             paddingBottom: 5
-
-              //           }}
-              //         />
-              //       </TouchableOpacity>
-
-              //       <TouchableOpacity
-              //       // onPress={() => navigation.toggleDrawer()}
-              //       // style={{ paddingTop:width/36 }}
-              //       >
-              //         <Image
-              //           source={require("../../../assets/heart.png")}
-              //           style={{
-              //             width: width / 15,
-              //             height: height / 30,
-              //             marginLeft: 8,
-              //             paddingBottom: 12
-              //           }}
-              //         />
-              //       </TouchableOpacity>
-              //     </View>
-              //   </View>
-
-              // </View>
               : null
           )}
           keyExtractor={item => item.phone}

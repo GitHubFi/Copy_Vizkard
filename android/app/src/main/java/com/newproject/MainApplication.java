@@ -11,6 +11,9 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import io.invertase.firebase.auth.RNFirebaseAuthPackage; // <-- Add this line
 import io.invertase.firebase.database.RNFirebaseDatabasePackage;
+import com.imagepicker.ImagePickerPackage; // <-- add this import
+import io.invertase.firebase.storage.RNFirebaseStoragePackage; // <-- Add this line
+// import com.RNFetchBlob.RNFetchBlobPackage; 
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +33,10 @@ public class MainApplication extends Application implements ReactApplication {
             new RNFirebasePackage(),
             new VectorIconsPackage(),
             new RNFirebaseAuthPackage(),
-            new RNFirebaseDatabasePackage()
+            new RNFirebaseDatabasePackage(),
+            new ImagePickerPackage(),// <-- add this line
+            new RNFirebaseStoragePackage()
+            // new RNFetchBlobPackage() 
       );
     }
 

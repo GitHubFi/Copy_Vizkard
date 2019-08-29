@@ -1,9 +1,14 @@
 import React, { Component } from "react";
-import { View, Dimensions, Image, Text, ScrollView, AsyncStorage, Alert, TouchableHighlight, Modal, TouchableOpacity, Share } from "react-native";
+import {
+  View, Dimensions, Image, Text, ScrollView,
+  ActivityIndicator, AsyncStorage, Alert, TouchableHighlight,
+  Modal, TouchableOpacity, Share, Button
+} from "react-native";
+import ImagePicker from 'react-native-image-picker';
 const { width, height } = Dimensions.get("window");
 import { List, ListItem } from "native-base";
 import { connect } from "react-redux";
-import { profileAction, GetUserAction } from '../../Store/Actions/AppAction'
+import { profileAction, GetUserAction, getSkillAction } from '../../Store/Actions/AppAction'
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import Add_Expreience from './Add_Expreience';
@@ -13,6 +18,20 @@ import firebase from "react-native-firebase";
 import ShowSkill from "./ShowSkill";
 import Edit_Experience from "./Edit_Experience";
 import AddTagLine from "./AddTagLine";
+// import RNFetchBlob from 'react-native-fetch-blob';
+import Manage_Profile from './Manage_Profile'
+import ShowPromote from './ShowPromote'
+
+const options = {
+  title: 'Select Profile Image',
+  chooseFromLibraryButtonTitle: "Choose Photo from Library",
+  takePhotoButtonTitle: null,
+  // customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
+  storageOptions: {
+    skipBackup: true,
+    path: 'images',
+  },
+};
 class Profile extends Component {
   constructor(props) {
     super(props);
@@ -24,11 +43,25 @@ class Profile extends Component {
       modalVisibleTagline: false,
       total_experience: [],
       modalVisibleEdit: false,
+      modalVisibleManage: false,
+      modalVisiblePromoteYourSeld: false,
       exp: '',
       Experience: '',
-      TagSate: ''
+      TagSate: '',
+      avatarSource: null,
+      url: null,
+      uploading: false
     };
 
+  }
+
+
+  Manage_Profile(visible) {
+    this.setState({ modalVisibleManage: visible });
+
+  }
+  PromoteYourSeld(visible) {
+    this.setState({ modalVisiblePromoteYourSeld: visible });
   }
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
@@ -46,19 +79,93 @@ class Profile extends Component {
     this.setState({ modalVisibleTagline: visible });
   }
 
+  selectImage = () => {
+    ImagePicker.showImagePicker(options, (response) => {
+      if (response !== null) {
+
+
+        console.log('Response = ', response.uri);
+        const uri = response.uri
+
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+        } else if (response.customButton) {
+          console.log('User tapped custom button: ', response.customButton);
+        } else {
+
+          // You can also display the image using data:
+          // const source = { uri: 'data:image/jpeg;base64,' + response.data };
+          let mime = 'image/jpg';
+          const urf = firebase.storage().ref('post').child(response.fileName).put(uri, { contentType: 'image/jpeg' })
+          urf.on('state_changed',
+            (snapshot) => {
+              // console.log(snapshot)
+              this.setState({ uploading: true })
+              // progrss function....
+              // const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+              // this.setState({ progress })
+
+            },
+            (error) => {
+              console.log(error);
+              this.setState({ uploading: false })
+              // error function ....
+            },
+            () => {
+              // complete function...
+              firebase.storage().ref('post').child(response.fileName).getDownloadURL().then(url => {
+
+                // console.log(url);
+                // console.log(id);
+                this.setState({
+                  url,
+                  uploading: true
+                  // progress: null,
+                  // image: null
+                })
+              }).then(() => {
+                const id = firebase.auth().currentUser.uid
+                this.setState({
+                  uploading: false
+                })
+                Alert.alert("Successfully Upload Profile Image")
+                firebase.database().ref("users").child(`${id}/userDetail`).update({
+                  url: this.state.url,
+
+                }).then(() => {
+                  this.setState({
+                    uploading: false
+                  })
+                  // Alert.alert("Successfully Upload Profile Image")
+                })
+
+              })
+            })
+        }
+
+      } else {
+
+      }
+
+    });
+  }
+
 
 
 
   async componentWillMount() {
     let userID = this.props.userID.uid;
-    let dbRef = firebase.database().ref(`users/${userID}/FriendList`);
+    const id = firebase.auth().currentUser.uid;
+    let dbRef = firebase.database().ref(`users/${id}/FriendList`);
     dbRef.on("child_added", val => {
       let person = val.val();
       console.log(person, "all users")
       person.phone = val.key;
       console.log(person.phone, "who user number--------------------------------")
 
-      if (person.uid === userID) {
+      if (person.uid === id) {
 
       } else {
         console.log(person, "own user");
@@ -87,10 +194,13 @@ class Profile extends Component {
       }
     });
     const userToken = await AsyncStorage.getItem("User");
-    const id = this.props.userID.uid
+    // const id = this.props.userID.uid
 
 
+    // const id = firebase.auth().currentUser.uid
     this.props.GetExperience(id);
+    this.props.getSkill(id)
+    this.props.profileData(id)
     // this.props.userDetail.name ? this.props.navigation.navigate('Profile') : this.props.navigation.navigate('CreateProfile')
 
     setTimeout(() => {
@@ -98,13 +208,13 @@ class Profile extends Component {
 
     }, 0);
 
-    this.props.profileData(userID)
+    this.props.profileData(id)
   }
 
 
   updateState = () => {
     let userID = this.props.userID.uid;
-
+    const id = firebase.auth().currentUser.uid
     firebase
       .database()
       .ref("users")
@@ -122,7 +232,7 @@ class Profile extends Component {
     firebase
       .database()
       .ref("users")
-      .child(userID)
+      .child(id)
       .child('TagLine')
       .child("post")
       .on("child_added", value => {
@@ -133,6 +243,7 @@ class Profile extends Component {
       });
     this.props.profileData(userID);
     this.props.GetExperience(userID);
+    this.props.getSkill(userID)
   }
 
 
@@ -158,7 +269,7 @@ class Profile extends Component {
   };
 
   render() {
-    console.log("all Exp", this.state.total_experience)
+
     const { userDetail } = this.props
     return (
 
@@ -230,26 +341,25 @@ class Profile extends Component {
                 marginTop: width / 33
               }}
             >
-              Say hi,to {userDetail.company ? userDetail.company : null}{"\n"}
+              {userDetail.company ? userDetail.company : null}{"\n"}
 
 
             </Text>
             <Text style={{
               fontSize: width / 27,
-              marginTop: width / 50,
+              marginTop: width / 55,
               color: "#fff",
             }}
               onPress={() => this.setModalVisibleTagLine(true)}
             >
               Add Tag Line</Text>
             <Modal
-              animationType="fade"
+              animationType='slide'
               transparent={false}
               style={{ backgroundColor: "black" }}
               visible={this.state.modalVisibleTagline}
               onRequestClose={() => {
-                // Alert.alert('Modal has been closed.');
-                console.log("cancel")
+                this.setModalVisibleTagLine(!this.state.modalVisibleTagline)
               }}
             >
               <View style={{ marginTop: 22, padding: 10 }}>
@@ -281,7 +391,7 @@ class Profile extends Component {
                 fontSize: width / 27,
                 fontWeight: "bold",
                 color: "#fff",
-                marginTop: width / 35
+                marginTop: width / 40
               }}
 
             >
@@ -301,22 +411,31 @@ class Profile extends Component {
             <View
               style={{ flex: 0.2, flexWrap: "wrap", alignSelf: "flex-end" }}
             >
-              <Text style={{ marginRight: 5, color: "#fff", paddingTop: 12 }}
-              >
-                Upload photo
+              {
+                (this.state.uploading === true) ?
+                  <ActivityIndicator size="small" color="#ffffff" />
+
+                  : <View style={{ flex: 0.2, flexWrap: "wrap", alignSelf: "flex-end" }}>
+                    <Text style={{ marginRight: 5, color: "#fff", paddingTop: 12 }}
+                      onPress={this.selectImage}
+                    >
+                      Upload photo
                 </Text>
-              <TouchableOpacity onPress={() => Alert.alert("update profile")}>
-                <Image
-                  source={require("../../../assets/update.png")}
-                  resizeMode="contain"
-                  style={{ width: width / 14, height: height / 20 }}
-                />
-              </TouchableOpacity>
+                    <TouchableOpacity onPress={this.selectImage}>
+                      <Image
+                        source={require("../../../assets/update.png")}
+                        resizeMode="contain"
+                        style={{ width: width / 14, height: height / 20 }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+              }
+
             </View>
             <View
               style={{ flex: 0.2, flexWrap: "wrap", alignSelf: "flex-end" }}
             >
-              <Text style={{ marginRight: 5, color: "#fff", paddingTop: 12 }}>
+              <Text style={{ marginRight: 5, color: "#fff", paddingTop: 12 }} onPress={this.onShare}>
                 Share Your Vizkard
                 </Text>
               <TouchableOpacity onPress={this.onShare}>
@@ -333,16 +452,17 @@ class Profile extends Component {
               style={{ flex: 0.2, flexWrap: "wrap", alignSelf: "flex-end" }}
             >
               <Text style={{ marginRight: 5, color: "#fff", paddingTop: 12 }}
-                onPress={() => Alert.alert("MAnage profile")}>
+                onPress={() => this.Manage_Profile(true)}>
                 Manage Your Profile
                 </Text>
-              <TouchableOpacity onPress={() => Alert.alert("Manage")}>
+              <TouchableOpacity onPress={() => this.Manage_Profile(true)}>
                 <Image
                   source={require("../../../assets/complete.png")}
                   resizeMode="contain"
                   style={{ width: width / 14, height: height / 20 }}
                 />
               </TouchableOpacity>
+
             </View>
             <View
               style={{
@@ -352,14 +472,19 @@ class Profile extends Component {
                 marginBottom: 10
               }}
             >
-              <Text style={{ marginRight: 5, color: "#fff", paddingTop: 12 }}>
+              <Text style={{ marginRight: 5, color: "#fff", paddingTop: 12 }}
+                onPress={() => { this.PromoteYourSeld(true) }}>
                 Promote Your Self
                 </Text>
-              <Image
-                source={require("../../../assets/promoteyourself.png")}
-                resizeMode="contain"
-                style={{ width: width / 14, height: height / 20 }}
-              />
+              <TouchableOpacity onPress={() => { this.PromoteYourSeld(true) }}>
+
+
+                <Image
+                  source={require("../../../assets/promoteyourself.png")}
+                  resizeMode="contain"
+                  style={{ width: width / 14, height: height / 20 }}
+                />
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -391,13 +516,12 @@ class Profile extends Component {
                 style={{ width: width / 16, height: height / 20 }}
               /> */}
               <Modal
-                animationType="fade"
+                animationType="slide"
                 transparent={false}
                 style={{ backgroundColor: "black" }}
                 visible={this.state.modalVisible1}
                 onRequestClose={() => {
-                  // Alert.alert('Modal has been closed.');
-                  console.log("cancel")
+                  this.setModalVisible1(!this.state.modalVisible1)
                 }}
               >
                 <View style={{ marginTop: 22, padding: 10 }}>
@@ -425,93 +549,7 @@ class Profile extends Component {
               <ShowSkill />
             </View>
 
-            {/* <View style={{ flex: 0.6 }}>
-              <Text style={{ color: "#fff" }}>On the Web</Text>
-              <View
-                style={{
-                  width: width / 5,
-                  marginTop: 10,
-                  height: height / 20,
-                  flexWrap: "wrap",
-                  backgroundColor: "#fff",
-                  borderRadius: 10
-                }}
-              >
-                <Image
-                  source={require("../../../assets/expirence.png")}
-                  resizeMode="contain"
-                  style={{
-                    width: width / 16,
-                    height: height / 20,
-                    borderRadius: 10
-                  }}
-                />
-                <Input
-                  style={{
-                    backgroundColor: "#fff",
-                    borderRadius: 10,
-                    fontSize: width / 36
-                  }}
-                  placeholder="Link"
-                />
-              </View>
-              <View
-                style={{
-                  width: width / 5,
-                  marginTop: 10,
-                  height: height / 20,
-                  flexWrap: "wrap",
-                  backgroundColor: "#fff",
-                  borderRadius: 10
-                }}
-              >
-                <Image
-                  source={require("../../../assets/expirence.png")}
-                  resizeMode="contain"
-                  style={{
-                    width: width / 16,
-                    height: height / 20,
-                    borderRadius: 10
-                  }}
-                />
-                <Input
-                  style={{
-                    backgroundColor: "#fff",
-                    borderRadius: 10,
-                    fontSize: width / 36
-                  }}
-                  placeholder="Link"
-                />
-              </View>
-              <View
-                style={{
-                  width: width / 5,
-                  marginTop: 10,
-                  height: height / 20,
-                  flexWrap: "wrap",
-                  backgroundColor: "#fff",
-                  borderRadius: 10
-                }}
-              >
-                <Image
-                  source={require("../../../assets/expirence.png")}
-                  resizeMode="contain"
-                  style={{
-                    width: width / 16,
-                    height: height / 20,
-                    borderRadius: 10
-                  }}
-                />
-                <Input
-                  style={{
-                    backgroundColor: "#fff",
-                    borderRadius: 10,
-                    fontSize: width / 36
-                  }}
-                  placeholder="Link"
-                />
-              </View>
-            </View> */}
+
           </View>
           <View style={{ flex: 0.7, marginLeft: 15 }}>
             <ScrollView>
@@ -530,16 +568,16 @@ class Profile extends Component {
                 >
                   Add Work Experience
               </Text>
+
               </TouchableHighlight>
 
               <Modal
-                animationType="fade"
+                animationType='slide'
                 transparent={false}
                 style={{ backgroundColor: "black" }}
                 visible={this.state.modalVisible}
                 onRequestClose={() => {
-                  // Alert.alert('Modal has been closed.');
-                  console.log("cancel")
+                  this.setModalVisible(!this.state.modalVisible)
                 }}
               >
                 <View style={{ marginTop: 22, padding: 10 }}>
@@ -568,86 +606,143 @@ class Profile extends Component {
               </Modal>
 
               <Text>-----------------------------------------------------</Text>
-              {/* <Text
-                style={{
-                  fontSize: width / 20,
-                  paddingTop: 10,
-                  paddingBottom: 10,
-                  color: "#0033a0",
-
-                }}
-              >
-
-
-              </Text> */}
-
 
               {
-                this.state.total_experience.slice(0).reverse().map((value, id) => {
-                  return <View key={id} >
+                (this.props.All_Experience !== null) ?
+                  this.props.All_Experience.map((value, id) => {
+                    return <View key={id} >
 
 
-                    <Text
-                      // onPress={() => this.props.navigation.navigate('Edit_Experience')}
-                      onPress={() => {
-                        this.setModalVisible3(true, value.Company, value.Experience);
-                      }}
-                      style={{
-                        fontSize: width / 22,
-                        paddingTop: 5,
-                        paddingBottom: 10,
-                        fontWeight: "bold"
-                      }}
-                    >
-                      {value.Company}
-                    </Text>
+                      <Text
+                        // onPress={() => this.props.navigation.navigate('Edit_Experience')}
+                        onPress={() => {
+                          this.setModalVisible3(true, value.Company, value.Experience);
+                        }}
+                        style={{
+                          fontSize: width / 22,
+                          paddingTop: 5,
+                          paddingBottom: 10,
+                          fontWeight: "bold"
+                        }}
+                      >
+                        {value.Company}
+                      </Text>
 
 
-                    <Text
-                      // onPress={() => Alert.alert("edit Experience", value.Experience)}
-                      style={{
-                        fontSize: width / 22,
-                        paddingTop: 0,
-                        paddingBottom: 10,
-                        fontWeight: "normal"
-                      }}>{value.Experience}
-                    </Text>
+                      <Text
+                        // onPress={() => Alert.alert("edit Experience", value.Experience)}
+                        style={{
+                          fontSize: width / 22,
+                          paddingTop: 0,
+                          paddingBottom: 10,
+                          fontWeight: "normal"
+                        }}>{value.Experience}
+                      </Text>
 
 
 
 
-                    <Modal
-                      animationType="fade"
-                      transparent={false}
-                      style={{ backgroundColor: "black" }}
-                      visible={this.state.modalVisibleEdit}
-                      onRequestClose={() => {
+                      <Modal
+                        animationType='fade'
+                        transparent={false}
+                        style={{ backgroundColor: "black" }}
+                        visible={this.state.modalVisibleEdit}
+                        onRequestClose={() => {
+                          this.setModalVisible3(!this.state.modalVisibleEdit)
+                          console.log("cancel")
+                        }}
+                      >
+                        <View style={{ marginTop: 22, padding: 10 }}>
+                          <View>
+                            <TouchableHighlight
+                              onPress={() => {
+                                this.setModalVisible3(!this.state.modalVisibleEdit);
+                              }}
+                            >
 
-                        console.log("cancel")
-                      }}
-                    >
-                      <View style={{ marginTop: 22, padding: 10 }}>
-                        <View>
-                          <TouchableHighlight
-                            onPress={() => {
-                              this.setModalVisible3(!this.state.modalVisibleEdit);
-                            }}
-                          >
-
-                            <MaterialCommunityIcons
-                              name="keyboard-backspace"
-                              size={width / 15}
-                              color="#000"
-                              style={{}}
-                            />
-                          </TouchableHighlight>
+                              <MaterialCommunityIcons
+                                name="keyboard-backspace"
+                                size={width / 15}
+                                color="#000"
+                                style={{}}
+                              />
+                            </TouchableHighlight>
+                          </View>
                         </View>
-                      </View>
-                      <Edit_Experience name={this.state.exp} Experience={this.state.Experience} />
-                    </Modal>
-                  </View>
-                })
+                        <Edit_Experience name={this.state.exp} Experience={this.state.Experience} />
+                      </Modal>
+
+                    </View>
+
+                  })
+                  : <Text
+                    // onPress={() => Alert.alert("edit Experience", value.Experience)}
+                    style={{
+                      fontSize: width / 30,
+                      paddingTop: 0,
+                      paddingBottom: 10,
+                      // fontWeight: "normal"
+                    }}>No Work Experience Found please add
+                  </Text>
               }
+              <Modal
+                animationType='slide'
+                transparent={false}
+                style={{ backgroundColor: "black" }}
+                visible={this.state.modalVisibleManage}
+                onRequestClose={() => {
+                  this.Manage_Profile(!this.state.modalVisibleManage)
+                  console.log("cancel")
+                }}
+              >
+                <View style={{ marginTop: 22, padding: 10 }}>
+                  <View>
+                    <TouchableHighlight
+                      onPress={() => {
+                        this.Manage_Profile(!this.state.modalVisibleManage);
+                      }}
+                    >
+
+                      <MaterialCommunityIcons
+                        name="keyboard-backspace"
+                        size={width / 15}
+                        color="#000"
+                        style={{}}
+                      />
+                    </TouchableHighlight>
+                  </View>
+                </View>
+                <Manage_Profile />
+              </Modal>
+              <Modal
+                animationType='slide'
+                transparent={false}
+                style={{ backgroundColor: "black" }}
+                visible={this.state.modalVisiblePromoteYourSeld}
+                onRequestClose={() => {
+                  this.PromoteYourSeld(!this.state.modalVisiblePromoteYourSeld)
+                  console.log("cancel")
+                }}
+              >
+                <View style={{ marginTop: 22, padding: 10 }}>
+                  <View>
+                    <TouchableHighlight
+                      onPress={() => {
+                        this.PromoteYourSeld(!this.state.modalVisiblePromoteYourSeld);
+                      }}
+                    >
+
+                      <MaterialCommunityIcons
+                        name="keyboard-backspace"
+                        size={width / 15}
+                        color="#000"
+                        style={{}}
+                      />
+                    </TouchableHighlight>
+                  </View>
+                </View>
+                <ShowPromote />
+              </Modal>
             </ScrollView>
           </View>
         </View>
@@ -660,13 +755,14 @@ class Profile extends Component {
 }
 function mapStateToProps(state) {
 
-  console.log(state.appReducer.All_Experience, "state.appReducer.User_Experience");
+  console.log(state.appReducer.All_Skill, "state.appReducer.User_Skills");
   return {
     userID: state.authReducer.userID, //as object
     userDetail: state.appReducer.userDetail,
     phoneNumber: state.authReducer.phoneNumber,
     User_Experience: state.appReducer.User_Experience,
-    All_Experience: state.appReducer.All_Experience
+    All_Experience: state.appReducer.All_Experience,
+    All_Skill: state.appReducer.All_Skill
 
 
   };
@@ -678,6 +774,9 @@ function mapDispatchToProps(dispatch) {
     },
     GetExperience: (userID) => {
       dispatch(GetUserAction(userID))
+    },
+    getSkill: (userID) => {
+      dispatch(getSkillAction(userID));
     }
   };
 }

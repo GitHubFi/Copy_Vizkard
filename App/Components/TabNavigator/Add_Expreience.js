@@ -3,6 +3,8 @@ import { Text, StyleSheet, View, Alert } from 'react-native';
 import { Container, Header, Content, Left, Body, Right, Button, Icon, Title, Item, Input, Label, Spinner } from 'native-base';
 import { connect } from 'react-redux';
 import firebase from "react-native-firebase";
+import { profileAction, GetUserAction } from '../../Store/Actions/AppAction'
+
 
 class Add_Expreience extends Component {
     constructor(props) {
@@ -15,6 +17,8 @@ class Add_Expreience extends Component {
         }
     }
 
+
+
     submit = () => {
         const { experience, company_name } = this.state;
         const userID = this.props.userID.uid
@@ -24,27 +28,9 @@ class Add_Expreience extends Component {
             Alert.alert("", 'Add your Company name');
 
         } else {
-            // let msgId = firebase
-            //     .database()
-            //     .ref(`users/${userID}`)
-            //     .child('Experience')
-            //     .push().key;
 
 
-            // let updates = {};
-            // let message = {
-            //     Company: company_name,
-            //     Experience: experience
-
-            // };
-
-            // updates[
-            //     `users/${userID}/Experience/${msgId}`
-            // ] = message;
-
-            // firebase.database().ref().update(updates)
-
-            firebase.database().ref(`users/${userID}`).child('Experience').child(company_name).set({
+            firebase.database().ref(`users/${userID}`).child('Experience/').push({
                 Company: company_name,
                 Experience: experience
             }).then(() => {
@@ -59,15 +45,18 @@ class Add_Expreience extends Component {
                     Alert.alert('', "your experience has been successfully submitted");
                     this.setState({
                         submit: false
-                    })
+                    });
+                    this.props.GetExperience(userID);
+                    this.props.profileData(userID);
                 }, 3000);
             }).catch((err) => {
-                Alert.alert("", err);
+                Alert.alert("", err.message);
+                console.log(err, "meraj")
             });
         }
     }
     render() {
-        // console.log("waaaa", this.state.total_experience)
+
         return (
             <View
                 style={{ flex: 0.3, marginTop: 50, justifyContent: "center", textAlign: "center", padding: 10, margin: 20 }}>
@@ -76,13 +65,15 @@ class Add_Expreience extends Component {
                         <Label>Company Name</Label>
                         <Input
                             onChangeText={company_name => this.setState({ company_name })}
-                            value={this.state.company_name} />
+                            value={this.state.company_name}
+                            keyboardType={"default"} />
                     </Item>
                     <Item floatingLabel>
                         <Label>Add Experience</Label>
                         <Input
                             onChangeText={experience => this.setState({ experience })}
-                            value={this.state.experience} />
+                            value={this.state.experience}
+                            keyboardType={"default"} />
                     </Item>
 
 
@@ -127,6 +118,12 @@ function mapDispatchToProps(dispatch) {
     return {
         verifyCode: (payload, path) => {
             dispatch(verifylogin(payload, path));
+        },
+        profileData: (userID) => {
+            dispatch(profileAction(userID));
+        },
+        GetExperience: (userID) => {
+            dispatch(GetUserAction(userID))
         }
     }
 }

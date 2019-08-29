@@ -24,8 +24,10 @@ class Login extends Component {
         super(props);
         this.state = {
             email: '',
-            Password: ''
+            Password: '',
+            user: ''
         }
+
     }
 
     static navigationOptions = {
@@ -68,8 +70,11 @@ class Login extends Component {
     }
 
 
+
+
     render() {
-        // console.log(this.props.verifyCode)
+
+
         return (
             <View
                 style={{
@@ -79,7 +84,7 @@ class Login extends Component {
                     alignItems: "center"
                 }}
             >
-                <Text style={{ fontSize: width / 4, color: "#fff", fontWeight:"bold", letterSpacing: -10 }}>hi</Text>
+                <Text style={{ fontSize: width / 4, color: "#fff", fontWeight: "bold", letterSpacing: -10 }}>hi</Text>
                 <Text
                     style={{
                         fontSize: width / 18,
@@ -101,7 +106,7 @@ class Login extends Component {
                             autoCapitalize={"none"}
                             onChangeText={email => this.setState({ email })}
                             value={this.state.email}
-                            
+
                         />
                     </Item>
                     <Item style={{ width: width / 2, borderColor: "transparent", paddingBottom: 10 }}>

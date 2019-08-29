@@ -42,11 +42,13 @@
 // }
 
 import React, { Component } from 'react';
-import { View, ScrollView, Dimensions, Text, Image } from 'react-native';
+import { View, ScrollView, Dimensions, Text, Image, TouchableOpacity } from 'react-native';
 import { connect } from "react-redux";
 const { width, height } = Dimensions.get("window");
-import { Card, CardItem, Body, Icon } from 'native-base';
+import { Card, CardItem, Icon, Container, Header, Left, Body, Right, Title, Subtitle, Button } from 'native-base';
+import AntDesign from "react-native-vector-icons/AntDesign";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+
 import { NotificationAction } from '../../Store/Actions/AppAction';
 
 class Notification extends Component {
@@ -59,8 +61,8 @@ class Notification extends Component {
         ),
         headerStyle: {
             backgroundColor: "#0071CE"
-          },
-          headerTitleStyle: {
+        },
+        headerTitleStyle: {
             alignSelf: "center",
             textAlign: "center",
             flex: 1,
@@ -75,107 +77,131 @@ class Notification extends Component {
     }
     render() {
         return (
-            <ScrollView
-                contentContainerStyle={{
-                    // height: height,
-                    width,
-                    backgroundColor: "#eee"
-                }}
-                keyboardDismissMode="interactive"
-                keyboardShouldPersistTaps="handled"
-            >
-                <View style={{ flex: 1, backgroundColor: "#eee" }}>
-
-                    <Card style={{ flex: 0.3, }}>
-
-                        {/* {
-                            this.props.Notification !== null ?
-                                this.props.Notification.map((data, index) => */}
-                        <View>
-
-
-                            <CardItem header
-                            //  key={index} 
-                             bordered style={{ flex: 0.1, backgroundColor: '#0071CE' }}>
-                                <MaterialCommunityIcons name="flash" size={25} color="#fff" />
-
-                                <Text style={{ textAlign: 'center', fontSize: width / 20, color: "#fff" }}>
-                                    {/* {data.Notification1} */}
-                                    Notification
-                                </Text>
-                            </CardItem>
-                            <CardItem bordered style={{ flex: 0.8, padding: width / 36 }}>
-                                <Body>
-                                    <Text style={{ fontSize: width / 24 }}>
-                                        {/* {data.Notification2} */}
-                                        Notification
-                                                </Text>
-
-                                </Body>
-                            </CardItem>
-                            <CardItem bordered style={{ flex: 0.8, padding: width / 36 }}>
-                                <Body>
-                                    <Text style={{ fontSize: width / 24 }}>
-                                        Notification
-                                                    {/* {data.Notification3} */}
-                                    </Text>
-
-                                </Body>
-                            </CardItem>
-                        </View>
-                        {/* )
-                                : null
-                        } */}
-                    </Card>
+            <View style={{}}>
 
 
 
-                    {/* <Card style={{ flex: 0.3, }}>
 
-                        <CardItem header bordered style={{ flex: 0.1, backgroundColor: "#282828" }}>
-                            <MaterialCommunityIcons name="gas-cylinder" size={25} color="#fff" />
+                <Header
+                    style={{ backgroundColor: '#0071CE' }}
+                    androidStatusBarColor="#0071CE">
+                    <Left style={{ flex: 1 }}>
+                        <TouchableOpacity onPress={() => this.props.navigation.navigate("Profile")}>
+                            <Icon name="arrow-back" style={{ color: "#fff", marginLeft: 10 }} />
+                        </TouchableOpacity>
 
-                            <Text style={{ textAlign: 'center', fontSize: width / 20, color: "#fff" }}>
-                                Gas Notification
-</Text>
-                        </CardItem>
-                        <CardItem bordered style={{ flex: 0.8, padding: width / 36 }}>
-                            <Body>
-                                <Text style={{ fontSize: width / 24 }}>
-                                    Gas Notification
-</Text>
+                    </Left>
+                    <Body style={{ flex: 1 }}>
+                        <Title
+                            style={{ alignSelf: "center" }}
+                        // style={{ alignSelf: 'center', alignContent: "center", textAlign: 'center', justifyContent: 'center' }}
+                        >Notifications</Title>
+                    </Body>
+                    <Right style={{ flex: 1 }}>
+                        {/* <Icon name='menu' /> */}
+                    </Right>
 
-                            </Body>
-                        </CardItem>
+                </Header>
 
+                <ScrollView
+                    contentContainerStyle={{
+                        // height: height,
+                        width,
+                        backgroundColor: "#eee"
+                    }}
+                    keyboardDismissMode="interactive"
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View>
 
-                    </Card>
-                    <Card style={{ flex: 0.3, }}>
 
                         <CardItem header bordered style={{ flex: 0.1, backgroundColor: '#282828' }}>
-                            <MaterialCommunityIcons name="water" size={25} color="#fff" />
-                            <Text style={{ textAlign: 'center', fontSize: width / 20, color: "#fff" }}>
-                                Water Notification
-</Text>
+                            <AntDesign name="notification" size={25} color="#fff" />
+
+                            <Text style={{ textAlign: 'center', fontSize: width / 20, color: "#fff", marginLeft: 10 }}>
+                                Notification for upgrade vizkard app
+                            </Text>
+                        </CardItem>
+                        <CardItem bordered style={{ flex: 0.8, padding: width / 36 }}>
+                            <Body>
+                                <Text style={{ fontSize: width / 24, }}>
+                                    vizkard is going to more professional app and you can use and find more valueable people
+
+                                </Text>
+
+                            </Body>
                         </CardItem>
                         <CardItem bordered style={{ flex: 0.8, padding: width / 36 }}>
                             <Body>
                                 <Text style={{ fontSize: width / 24 }}>
-                                    Water Notification
-</Text>
+
+                                    vizkard is going to more professional app and you can use and find more valueable people
+                                </Text>
 
                             </Body>
                         </CardItem>
+                    </View>
+                    <View>
 
 
-                    </Card> */}
+                        <CardItem header bordered style={{ flex: 0.1, backgroundColor: '#282828' }}>
+                            <AntDesign name="notification" size={25} color="#fff" />
+
+                            <Text style={{ textAlign: 'center', fontSize: width / 20, color: "#fff", marginLeft: 10 }}>
+                                Notification for upgrade vizkard app
+                            </Text>
+                        </CardItem>
+                        <CardItem bordered style={{ flex: 0.8, padding: width / 36 }}>
+                            <Body>
+                                <Text style={{ fontSize: width / 24, }}>
+                                    vizkard is going to more professional app and you can use and find more valueable people
+
+                                </Text>
+
+                            </Body>
+                        </CardItem>
+                        <CardItem bordered style={{ flex: 0.8, padding: width / 36 }}>
+                            <Body>
+                                <Text style={{ fontSize: width / 24 }}>
+
+                                    vizkard is going to more professional app and you can use and find more valueable people
+                                </Text>
+
+                            </Body>
+                        </CardItem>
+                    </View>
+                    <View>
 
 
+                        <CardItem header bordered style={{ flex: 0.1, backgroundColor: '#282828' }}>
+                            <AntDesign name="notification" size={25} color="#fff" />
 
+                            <Text style={{ textAlign: 'center', fontSize: width / 20, color: "#fff", marginLeft: 10 }}>
+                                Notification for upgrade vizkard app
+    </Text>
+                        </CardItem>
+                        <CardItem bordered style={{ flex: 0.8, padding: width / 36 }}>
+                            <Body>
+                                <Text style={{ fontSize: width / 24, }}>
+                                    vizkard is going to more professional app and you can use and find more valueable people
 
+        </Text>
 
-                </View>
-            </ScrollView>
+                            </Body>
+                        </CardItem>
+                        <CardItem bordered style={{ flex: 0.8, padding: width / 36 }}>
+                            <Body>
+                                <Text style={{ fontSize: width / 24 }}>
+
+                                    vizkard is going to more professional app and you can use and find more valueable people
+        </Text>
+
+                            </Body>
+                        </CardItem>
+                    </View>
+
+                </ScrollView>
+            </View>
         )
     }
 }

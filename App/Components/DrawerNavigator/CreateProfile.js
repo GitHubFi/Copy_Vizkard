@@ -21,6 +21,7 @@ import Entypo from "react-native-vector-icons/Entypo";
 // import AppAction from "../../Store/Actions/AppAction";
 import { createProfileAction } from "../../Store/Actions/AppAction"
 import { connect } from "react-redux";
+
 class CreateProfile extends Component {
   constructor() {
     super();
@@ -99,13 +100,13 @@ class CreateProfile extends Component {
             style={{ width: width / 12, marginRight: 8 }}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={{ flex: 0.4 }}>
+        {/* <TouchableOpacity style={{ flex: 0.4 }}>
           <Image
             source={require("../../../assets/Back.png")}
             resizeMode="contain"
             style={{ width: width / 12, marginRight: 8 }}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     )
   });
@@ -124,8 +125,8 @@ class CreateProfile extends Component {
       if (user) {
         // console.log(user, "user available")
         // console.log(user._auth._user._user.uid, "uid")
-        await AsyncStorage.setItem('User', user._auth._user._user.uid)
-
+        await AsyncStorage.setItem('User', user._auth._user._user.uid);
+        // this.props.navigation.navigate('create_profile')
 
       } else {
         // ...
@@ -135,167 +136,202 @@ class CreateProfile extends Component {
     // const userToken = await AsyncStorage.getItem("User");
     // this.props.profileData(userToken)
     // this.props.userDetail.name ? console.log('user.................') : this.props.navigation.navigate('CreateProfile')
+    const user_email = firebase.auth().currentUser.email
+    this.setState({
+      email: user_email
+    })
+    console.log(user_email, "user_email form firebase authentication")
   }
 
   sendIntterest = (interest) => {
 
     const uid = this.props.userRegister_Uid
-    firebase
-      .database()
-      .ref("users")
-      .child(uid)
-      .child("Interests")
-      .child(interest)
-      .set(interest).then(() => {
-        if (interest === "Travel") {
-          this.setState({
+    let {
+      name,
+      email,
+      city,
+      company,
+      occupation,
+      website,
+      address,
+      country
+    } = this.state;
+    if (name === '' || city === "" || company === "" || occupation === "" || website === "" || address === "" || country === "") {
+      Alert.alert("Please first fill all details");
+    } else {
+      firebase
+        .database()
+        .ref("users")
+        .child(uid)
+        .child("Interests")
+        .child(interest)
+        .set(interest).then(() => {
+          if (interest === "Travel") {
+            this.setState({
 
-            Send1: true
-          });
-        } else if (interest === 'Advanture') {
+              Send1: true
+            });
+          } else if (interest === 'Advanture') {
 
-          this.setState({
-            Send: true,
+            this.setState({
+              Send: true,
 
-          });
-        } else if (interest === 'Sports') {
-          this.setState({
-            Send2: true
-          })
-        } else if (interest === "Shoes") {
-          this.setState({
-            Send3: true
-          })
-        } else if (interest === "Real State") {
-          this.setState({
-            Send4: true
-          })
-        } else if (interest === "Make-up") {
-          this.setState({
-            Send5: true
-          })
-        } else if (interest === "Jewellery") {
-          this.setState({
-            Send6: true
-          })
-        } else if (interest === "Home Appliances") {
-          this.setState({
-            Send7: true
-          })
-        } else if (interest === "Gifts") {
-          this.setState({
-            Send8: true
-          })
-        } else if (interest === "Gadgets") {
-          this.setState({
-            Send9: true
-          })
-        } else if (interest === "Furniture") {
-          this.setState({
-            Send10: true
-          })
-        } else if (interest === "Food") {
-          this.setState({
-            Send11: true
-          })
-        } else if (interest === "Electronics") {
-          this.setState({
-            Send12: true
-          })
-        } else if (interest === "Education") {
-          this.setState({
-            Send13: true
-          })
-        } else if (interest === "Books") {
-          this.setState({
-            Send14: true
-          })
-        } else if (interest === "Banking") {
-          this.setState({
-            Send15: true
-          })
-        } else if (interest === "Automobiles") {
-          this.setState({
-            Send16: true
-          })
-        } else if (interest === "Apparel") {
-          this.setState({
-            Send17: true
-          })
-        } else if (interest === "Animals") {
-          this.setState({
-            Send18: true
-          })
-        } else if (interest === "advanture") {
-          this.setState({
-            Send19: true
-          })
-        }
+            });
+          } else if (interest === 'Sports') {
+            this.setState({
+              Send2: true
+            })
+          } else if (interest === "Shoes") {
+            this.setState({
+              Send3: true
+            })
+          } else if (interest === "Real State") {
+            this.setState({
+              Send4: true
+            })
+          } else if (interest === "Make-up") {
+            this.setState({
+              Send5: true
+            })
+          } else if (interest === "Jewellery") {
+            this.setState({
+              Send6: true
+            })
+          } else if (interest === "Home Appliances") {
+            this.setState({
+              Send7: true
+            })
+          } else if (interest === "Gifts") {
+            this.setState({
+              Send8: true
+            })
+          } else if (interest === "Gadgets") {
+            this.setState({
+              Send9: true
+            })
+          } else if (interest === "Furniture") {
+            this.setState({
+              Send10: true
+            })
+          } else if (interest === "Food") {
+            this.setState({
+              Send11: true
+            })
+          } else if (interest === "Electronics") {
+            this.setState({
+              Send12: true
+            })
+          } else if (interest === "Education") {
+            this.setState({
+              Send13: true
+            })
+          } else if (interest === "Books") {
+            this.setState({
+              Send14: true
+            })
+          } else if (interest === "Banking") {
+            this.setState({
+              Send15: true
+            })
+          } else if (interest === "Automobiles") {
+            this.setState({
+              Send16: true
+            })
+          } else if (interest === "Apparel") {
+            this.setState({
+              Send17: true
+            })
+          } else if (interest === "Animals") {
+            this.setState({
+              Send18: true
+            })
+          } else if (interest === "advanture") {
+            this.setState({
+              Send19: true
+            })
+          }
 
 
 
-        setTimeout(() => {
+          setTimeout(() => {
 
-          Alert.alert('', "your interest has been successfully submitted");
-          this.setState({
-            Send: false,
-            Send1: false,
-            Send2: false,
-            Send3: false,
-            Send4: false,
-            Send5: false,
-            Send6: false,
-            Send7: false,
-            Send8: false,
-            Send9: false,
-            Send10: false,
-            Send11: false,
-            Send12: false,
-            Send13: false,
-            Send14: false,
-            Send15: false,
-            Send16: false,
-            Send17: false,
-            Send18: false,
-            Send19: false
+            Alert.alert('', "your interest has been successfully submitted");
+            this.setState({
+              Send: false,
+              Send1: false,
+              Send2: false,
+              Send3: false,
+              Send4: false,
+              Send5: false,
+              Send6: false,
+              Send7: false,
+              Send8: false,
+              Send9: false,
+              Send10: false,
+              Send11: false,
+              Send12: false,
+              Send13: false,
+              Send14: false,
+              Send15: false,
+              Send16: false,
+              Send17: false,
+              Send18: false,
+              Send19: false
 
-          })
-        }, 1000);
+            })
+          }, 1000);
 
-      }).catch((err) => {
-        Alert.alert("", err);
-      });
+        }).catch((err) => {
+          Alert.alert("", err);
+        });
+
+    }
 
 
   }
 
   send_interest_Database = (value) => {
     const uid = this.props.userRegister_Uid
+    let {
+      name,
+      email,
+      city,
+      company,
+      occupation,
+      website,
+      address,
+      country
+    } = this.state;
+    if (name === '' || city === "" || company === "" || occupation === "" || website === "" || address === "" || country === "") {
+      Alert.alert("Please first enter your all details")
+    } else {
 
-    firebase
-      .database()
-      .ref("users")
-      .child(uid)
-      .child("Interests")
-      .child(`${value}`)
-      .set(value).then(() => {
-        this.setState({
-          SendInt: true,
-          otherSpecify: ''
-        });
 
-        setTimeout(() => {
-
-          Alert.alert('', "your interest has been successfully submitted");
+      firebase
+        .database()
+        .ref("users")
+        .child(uid)
+        .child("Interests")
+        .child(`${value}`)
+        .set(value).then(() => {
           this.setState({
-            SendInt: false,
+            SendInt: true,
+            otherSpecify: ''
+          });
 
-          })
-        }, 2000);
+          setTimeout(() => {
 
-      }).catch((err) => {
-        Alert.alert("", err);
-      });
+            Alert.alert('', "your interest has been successfully submitted");
+            this.setState({
+              SendInt: false,
+
+            })
+          }, 1000);
+
+        }).catch((err) => {
+          Alert.alert("", err);
+        });
+    }
   }
 
 
@@ -436,6 +472,7 @@ class CreateProfile extends Component {
                   autoCapitalize={"none"}
                   style={{ color: "#272727", }}
                   keyboardType={"email-address"}
+                  value={this.state.email}
                   onChangeText={email => this.setState({ email })}
                 />
               </View>
@@ -595,14 +632,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send19 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -611,14 +647,12 @@ class CreateProfile extends Component {
 
                         <Image
 
-                          source={require("../../../assets/Adventure.png")}
+                          source={require("../../../assets/interest/Adventure.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 7.5,
+                            width: width / 8,
                             marginRight: 8,
-                            marginLeft: -6,
-                            //   backgroundColor: "orange",
-                            height: height / 9
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -627,14 +661,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send18 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -642,12 +675,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Animals.png")}
+                          source={require("../../../assets/interest/Animals.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 10,
+                            width: width / 8,
                             marginRight: 8,
-                            height: height / 12
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -656,14 +689,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send17 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -671,12 +703,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Apparel.png")}
+                          source={require("../../../assets/Apparel.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 10,
+                            width: width / 8,
                             marginRight: 8,
-                            height: height / 12
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -685,14 +717,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send16 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -700,13 +731,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Automobiles.png")}
+                          source={require("../../../assets/Automobiles.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 7,
-                            marginRight: 10,
-                            marginLeft: -8,
-                            height: height / 9
+                            width: width / 8,
+                            marginRight: 8,
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -715,14 +745,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send15 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -730,12 +759,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Banking.png")}
+                          source={require("../../../assets/Banking.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 10,
+                            width: width / 8,
                             marginRight: 8,
-                            height: height / 12
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -746,14 +775,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send14 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -761,15 +789,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Books.png")}
+                          source={require("../../../assets/Books.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 12,
-                            marginRight: 0,
-                            marginLeft: 5,
-                            height: height / 13,
-                            // paddingTop: 10,
-                            marginTop: 16
+                            width: width / 8,
+                            marginRight: 8,
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -778,14 +803,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send13 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -793,13 +817,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Education.png")}
+                          source={require("../../../assets/Education.jpg")}
                           resizeMode="contain"
                           style={{
                             width: width / 8,
                             marginRight: 8,
-                            height: height / 10,
-                            paddingTop: 15
+                            height: height / 10
 
                           }}
                         />
@@ -809,14 +832,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send12 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -824,14 +846,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Electronics.png")}
+                          source={require("../../../assets/Electronics.jpg")}
                           resizeMode="contain"
                           style={{
                             width: width / 8,
-                            marginRight: 7,
-                            height: height / 9,
-                            marginTop: -15
-
+                            marginRight: 8,
+                            height: height / 10
 
                           }}
                         />
@@ -840,14 +860,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send11 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -855,14 +874,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Food.png")}
+                          source={require("../../../assets/Food.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 12,
-                            marginRight: 5,
-                            marginLeft: 8,
-                            height: height / 14,
-                            marginBottom: 18
+                            width: width / 8,
+                            marginRight: 8,
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -871,14 +888,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send10 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 10
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -886,13 +902,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Furniture.png")}
+                          source={require("../../../assets/Furniture.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 9,
+                            width: width / 8,
                             marginRight: 8,
-                            height: height / 11,
-                            // paddingTop: 10,
+                            height: height / 10
 
                           }}
                         />
@@ -904,14 +919,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send9 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -919,13 +933,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Gadgets.png")}
+                          source={require("../../../assets/Gadgets.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 10,
+                            width: width / 8,
                             marginRight: 8,
-                            height: height / 11,
-                            marginTop: 25,
+                            height: height / 10
 
                           }}
                         />
@@ -934,14 +947,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send8 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -949,59 +961,28 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Gifts.png")}
+                          source={require("../../../assets/Gifts.jpg")}
                           resizeMode="contain"
-                          style={{
-                            width: width / 13,
-                            marginRight: 10,
-                            height: height / 13,
-                            marginLeft: 5
-                          }}
-                        />
-                      </TouchableOpacity>
-                  }
-                  {
-                    (this.state.Send7 === true) ?
-                      <View style={{
-                        width: width / 9,
-                        marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
-
-                      }}>
-
-                        <ActivityIndicator size="small" color="#000000" />
-
-                      </View>
-                      : <TouchableOpacity
-                        onPress={() => this.sendIntterest("Home Appliances")}
-                      >
-                        <Image
-                          source={require("../../../assets/HomeAppliances.png")}
-                          resizeMode="contain"
-
                           style={{
                             width: width / 8,
                             marginRight: 8,
-                            height: height / 9,
-                            marginBottom: -18
-
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
                   }
+
 
                   {
                     (this.state.Send6 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       :
@@ -1011,12 +992,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Jewellery.png")}
+                          source={require("../../../assets/Jewellery.jpg")}
                           resizeMode="contain"
                           style={{
                             width: width / 8,
-                            marginRight: 8,
-                            height: height / 8,
+                            marginRight: 7,
+                            height: height / 10
 
                           }}
                         />
@@ -1025,14 +1006,13 @@ class CreateProfile extends Component {
                   {
                     (this.state.Send5 === true) ?
                       <View style={{
-                        width: width / 9,
+                        width: width / 8,
                         marginRight: 8,
-                        height: height / 25,
-                        marginTop: 20
+                        height: height / 20
 
                       }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -1040,14 +1020,41 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Make-up.png")}
+                          source={require("../../../assets/Make-up.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 9,
+                            width: width / 8,
+                            marginRight: 6,
+                            height: height / 10
+                          }}
+                        />
+                      </TouchableOpacity>
+                  }
+                  {
+                    (this.state.Send7 === true) ?
+                      <View style={{
+                        width: width / 8,
+                        marginRight: 8,
+                        height: height / 20
+
+                      }}>
+
+                        <ActivityIndicator size="small" color="#008ace" />
+
+                      </View>
+                      : <TouchableOpacity
+                        onPress={() => this.sendIntterest("Home Appliances")}
+                      >
+                        <Image
+                          source={require("../../../assets/HomeAppliances.jpg")}
+                          resizeMode="contain"
+
+                          style={{
+                            width: width / 7,
                             marginRight: 8,
-                            height: height / 8,
-                            paddingTop: -25,
-                            marginTop: -18
+                            height: height / 10,
+                            paddingTop: 10
+
                           }}
                         />
                       </TouchableOpacity>
@@ -1056,9 +1063,13 @@ class CreateProfile extends Component {
                 <View style={{ flexDirection: "column" }}>
                   {
                     (this.state.Send4 === true) ?
-                      <View >
+                      <View style={{
+                        width: width / 8,
+                        marginRight: 8,
+                        height: height / 20
+                      }}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -1066,13 +1077,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/RealEstate.png")}
+                          source={require("../../../assets/RealEstate.jpg")}
                           resizeMode="contain"
                           style={{
                             width: width / 8,
-                            marginRight: 9,
-                            height: height / 10,
-                            marginTop: 10
+                            marginRight: 8,
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -1082,7 +1092,7 @@ class CreateProfile extends Component {
                     (this.state.Send3 === true) ?
                       <View style={[styles.container, styles.horizontal]}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -1090,16 +1100,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Shoes.png")}
+                          source={require("../../../assets/Shoes.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 13,
+                            width: width / 8,
                             marginRight: 8,
-                            height: height / 15,
-                            marginBottom: 14,
-                            marginTop: 10,
-                            paddingTop: 10
-
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -1110,7 +1116,7 @@ class CreateProfile extends Component {
                     (this.state.Send2 === true) ?
                       <View style={[styles.container, styles.horizontal]}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -1118,13 +1124,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Sports.png")}
+                          source={require("../../../assets/Sports.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 12,
+                            width: width / 8,
                             marginRight: 8,
-                            height: height / 14,
-                            marginBottom: 14
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -1135,7 +1140,7 @@ class CreateProfile extends Component {
                     (this.state.Send1 === true) ?
                       <View style={[styles.container, styles.horizontal]}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -1143,13 +1148,12 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Travel.png")}
+                          source={require("../../../assets/Travel.jpg")}
                           resizeMode="contain"
                           style={{
-                            width: width / 12,
+                            width: width / 8,
                             marginRight: 8,
-                            height: height / 14,
-                            marginBottom: 14
+                            height: height / 10
                           }}
                         />
                       </TouchableOpacity>
@@ -1159,7 +1163,7 @@ class CreateProfile extends Component {
                     (this.state.Send === true) ?
                       <View style={[styles.container, styles.horizontal]}>
 
-                        <ActivityIndicator size="small" color="#000000" />
+                        <ActivityIndicator size="small" color="#008ace" />
 
                       </View>
                       : <TouchableOpacity
@@ -1167,7 +1171,7 @@ class CreateProfile extends Component {
                       >
 
                         <Image
-                          source={require("../../../assets/Adventure.png")}
+                          source={require("../../../assets/Adventure.jpg")}
                           resizeMode="contain"
                           style={{
                             width: width / 8,
@@ -1182,7 +1186,7 @@ class CreateProfile extends Component {
               </View>
               <View style={{ alignItems: "center", justifyContent: "center" }}>
                 {/* <Image
-                  source={require("../../../assets/Others_PleaseSpecify.png")}
+                  source={require("../../../assets/Others_PleaseSpecify.jpg")}
                   resizeMode="contain"
                   style={{
                     width: width / 1.5,
@@ -1209,7 +1213,7 @@ class CreateProfile extends Component {
                         : (this.state.SendInt === true) ?
                           <View style={[styles.container, styles.horizontal]}>
 
-                            <ActivityIndicator size="small" color="#000000" />
+                            <ActivityIndicator size="small" color="#ffffff" />
 
                           </View>
                           : null

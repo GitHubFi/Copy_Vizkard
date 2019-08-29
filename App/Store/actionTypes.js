@@ -30,8 +30,12 @@ export default class Auth {
     static SIGNUP_PROGRESS = "SIGNUP_PROGRESS";
     static SIGNUP_ERROR = "SIGNUP_ERROR";
 
-    static GET_Experience_SUCCESS = "GET_Experience_SUCCESS"
-// 
+    static GET_Experience_SUCCESS = "GET_Experience_SUCCESS";
+    static GET_Skill_SUCCESS = "GET_Skill_SUCCESS";
+
+    static GET_Skill_NEW_ARRAY = "GET_Skill_NEW_ARRAY"
+    // static GET_ALL_MESSAGES = "GET_ALL_MESSAGES"
+    // 
 
 
 }

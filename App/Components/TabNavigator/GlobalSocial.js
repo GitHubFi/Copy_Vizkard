@@ -214,7 +214,7 @@ class GlobalSocial extends Component {
           style={{ flex: 0.4 }}
         >
           <Image
-            source={{ uri: "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }}
+            source={{ uri: item.url ? item.url : "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }}
             style={{ width: width / 3.2, height: height / 6 }}
           />
         </View>
@@ -360,7 +360,7 @@ class GlobalSocial extends Component {
         <View style={{ flex: 0.7 }}>
           {this.props.allUserListComp.length !== 0 ?
             <FlatList
-              data={(this.state.text === '' || this.state.dataSource === null) ? this.formatData(this.props.allUserListComp, numColumns) : this.state.dataSource}
+              data={(this.state.text === '' || this.state.dataSource === null) ? this.formatData(this.props.allUserListComp, numColumns) : this.formatData(this.state.dataSource, numColumns)}
               style={{ flex: 1 }}
               // ItemSeparatorComponent={this.ListViewItemSeparator}
               renderItem={this.renderItem}

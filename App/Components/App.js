@@ -29,6 +29,9 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Login from "./SignIn/Login"
 import LogOut from './DrawerNavigator/LogOut'
 import Edit_Experience from './TabNavigator/Edit_Experience'
+import CreateProfile from './DrawerNavigator/CreateProfile';
+import Manage_Profile from "./TabNavigator/Manage_Profile"
+import ManageAccount from './DrawerNavigator/ManageAccount'
 
 const AuthStackNavigator = createStackNavigator(
   {
@@ -38,7 +41,11 @@ const AuthStackNavigator = createStackNavigator(
     Login: Login,
     Profile: Profile,
     LogOut: LogOut,
-    Edit_Experience: Edit_Experience
+    create_profile: CreateProfile,
+    
+    // Manage_Profile: Manage_Profile
+
+    // Edit_Experience: Edit_Experience
 
 
     // ChatScreen:ChatScreen
@@ -52,6 +59,9 @@ const Switch = createSwitchNavigator({
   splash: Splash,
   auth: AuthStackNavigator,
   app: AppDrawerNavigator,
+  // ManageAccount: ManageAccount
+
+
 
 
   // ChatScreen:ChatScreen

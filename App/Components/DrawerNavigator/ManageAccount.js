@@ -26,7 +26,7 @@
 // }
 import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View, ScrollView, Dimensions, Image, TouchableOpacity, ToastAndroid, AsyncStorage } from 'react-native';
-import { Input, Button, Spinner, Thumbnail } from "native-base";
+import { Input, Button, Spinner, Thumbnail, Header, Left, Body, Right, Title, Icon } from "native-base";
 const { height, width } = Dimensions.get('window');
 import Entypo from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -50,13 +50,36 @@ export default class ManageAccount extends Component {
     }
     render() {
         return (
-            <ScrollView contentContainerStyle={{ height: height, width, backgroundColor: "#eeeeee" }} keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" >
-                <View style={{ flex: 1, padding: width / 20, justifyContent: "space-around" }}>
-                    <View style={{ flex: 0.5, justifyContent: "center", alignItems: "center" }}>
-                        <View style={{ flex: 0.1 }}>
+            <View style={{ flex: 1, backgroundColor: '#eeeeee' }}>
+                <Header
+                    style={{ backgroundColor: '#0071CE' }}
+                    androidStatusBarColor="#0071CE">
+                    <Left style={{ flex: 1 }}>
+                        <TouchableOpacity onPress={() => this.props.navigation.navigate("Profile")}>
+                            <Icon name="arrow-back" style={{ color: "#fff", marginLeft: 10 }} />
+                        </TouchableOpacity>
 
-                        </View>
-                        <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }} >
+                    </Left>
+                    <Body style={{ flex: 1 }}>
+                        <Title
+                            style={{ alignSelf: "center" }}
+                        // style={{ alignSelf: 'center', alignContent: "center", textAlign: 'center', justifyContent: 'center' }}
+                        >Manage Account</Title>
+                    </Body>
+                    <Right style={{ flex: 1 }}>
+                        {/* <Icon name='menu' /> */}
+                    </Right>
+
+                </Header>
+
+                {/* <ScrollView contentContainerStyle={{ height: height, width, backgroundColor: "#eeeeee" }} 
+                keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" > */}
+                <View style={{ flex: 1, padding: width / 20, justifyContent: "space-around" }}>
+                    <View style={{ flex: 0.3, justifyContent: "center", alignItems: "center" }}>
+                        {/* <View style={{ flex: 0.1 }}>
+
+                            </View> */}
+                        <View style={{ flex: 0.9, justifyContent: "center", alignItems: "center" }} >
                             {/* <View
                         style={{
                             flex: 0.5,
@@ -69,7 +92,7 @@ export default class ManageAccount extends Component {
                                 style={{
                                     width: width / 2,
                                     // height: height/2,
-                                    marginTop: 20,
+                                    // marginTop: 20,
                                     resizeMode: "contain"
                                     // color:'rgba(208, 164, 135, 1)'
                                 }}
@@ -77,9 +100,9 @@ export default class ManageAccount extends Component {
                             {/* </View> */}
                             {/* <Image source={require("../../../assets/logoB.png")} style={{ width: width / 2, marginTop: 20 }} resizeMode='contain' /> */}
                         </View>
-                        <View style={{ flex: 0.5, paddingTop: width / 6, justifyContent: "center", alignItems: "center" }}>
-                            {/* <Thumbnail large source={require('../../../assets/profileImage.png')} /> */}
-                        </View>
+                        {/* <View style={{ flex: 0.5, paddingTop: width / 6, justifyContent: "center", alignItems: "center" }}> */}
+                        {/* <Thumbnail large source={require('../../../assets/profileImage.png')} /> */}
+                        {/* </View> */}
                         <View style={{ flex: 0.2, justifyContent: "center", alignItems: "center" }}>
                             <Text style={{ color: '#05527c', fontSize: width / 16 }}>John Doe</Text>
                             <Text style={{ color: '#f09291' }}> Business Men</Text>
@@ -192,7 +215,8 @@ export default class ManageAccount extends Component {
                                     display: "flex",
                                     justifyContent: "center",
                                     alignItems: "center",
-                                    backgroundColor: "#24516e",
+                                    // backgroundColor: "#24516e",
+                                    backgroundColor: "#0071CE",
                                     alignSelf: "center",
                                     // borderRadius: width / 12
                                 }}
@@ -205,7 +229,8 @@ export default class ManageAccount extends Component {
 
 
                 </View>
-            </ScrollView>
+                {/* </ScrollView> */}
+            </View>
         )
     }
 }

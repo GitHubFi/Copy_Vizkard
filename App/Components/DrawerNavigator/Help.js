@@ -1,7 +1,8 @@
 
 import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View, ScrollView, Dimensions, Image, TouchableOpacity, ToastAndroid, AsyncStorage } from 'react-native';
-import { Input, Button, Spinner, Thumbnail } from "native-base";
+
+import { Input, Button, Spinner, Thumbnail, Header, Left, Body, Right, Title, Icon } from "native-base";
 const { height, width } = Dimensions.get('window');
 import Entypo from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -25,21 +26,42 @@ export default class Help extends Component {
     }
     render() {
         return (
-            <ScrollView contentContainerStyle={{ height: height, width, backgroundColor: "#eeeeee" }} keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" >
-                <View style={{ flex: 1, padding: width / 20, justifyContent: "space-around" }}>
-                    {/* <View style={{ flex: 0.1, justifyContent: "center", alignItems: "center" }}> */}
-                        {/* <View style={{ flex: 0.1 }}>
+            // <ScrollView contentContainerStyle={{ height: height, width, backgroundColor: "#eeeeee" }} 
+            // keyboardDismissMode="interactive" keyboardShouldPersistTaps="handled" >
+            <View style={{ flex: 1, backgroundColor: '#eeeeee' }}>
+                <Header
+                    style={{ backgroundColor: '#0071CE' }}
+                    androidStatusBarColor="#0071CE">
+                    <Left style={{ flex: 1 }}>
+                        <TouchableOpacity onPress={() => this.props.navigation.navigate("Profile")}>
+                            <Icon name="arrow-back" style={{ color: "#fff", marginLeft: 10 }} />
+                        </TouchableOpacity>
+
+                    </Left>
+                    <Body style={{ flex: 1 }}>
+                        <Title
+                            style={{ alignSelf: "center" }}
+                        // style={{ alignSelf: 'center', alignContent: "center", textAlign: 'center', justifyContent: 'center' }}
+                        >Manage Account</Title>
+                    </Body>
+                    <Right style={{ flex: 1 }}>
+                        {/* <Icon name='menu' /> */}
+                    </Right>
+
+                </Header>
+                {/* <View style={{ flex: 0.1, justifyContent: "center", alignItems: "center" }}> */}
+                {/* <View style={{ flex: 0.1 }}>
 
                         </View> */}
-                        {/* <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }} > */}
-                            {/* <View
+                {/* <View style={{ flex: 0.6, justifyContent: "center", alignItems: "center" }} > */}
+                {/* <View
                         style={{
                             flex: 0.5,
                             justifyContent: "center",
                             alignItems: "center"
                         }}
                     > */}
-                            {/* <Image
+                {/* <Image
                                 source={require("../../../assets/logo.png")}
                                 style={{
                                     width: width / 2,
@@ -49,22 +71,66 @@ export default class Help extends Component {
                                     // color:'rgba(208, 164, 135, 1)'
                                 }}
                             /> */}
-                            {/* </View> */}
-                            {/* <Image source={require("../../../assets/logoB.png")} style={{ width: width / 2, marginTop: 20 }} resizeMode='contain' /> */}
-                        {/* </View> */}
-                        {/* <View style={{ flex: 0.5, justifyContent: "center", alignItems: "center" }}> */}
-                            {/* <Thumbnail large source={require('../../../assets/profileImage.png')} /> */}
-                        {/* </View> */}
-                        <View style={{ flex: 0.2, justifyContent: "center", alignItems: "center" }}>
-                            <Text style={{ color: '#05527c', fontSize: width / 16 }}>
-                            Vizkard FAQ
+                {/* </View> */}
+                {/* <Image source={require("../../../assets/logoB.png")} style={{ width: width / 2, marginTop: 20 }} resizeMode='contain' /> */}
+                {/* </View> */}
+                {/* <View style={{ flex: 0.5, justifyContent: "center", alignItems: "center" }}> */}
+                {/* <Thumbnail large source={require('../../../assets/profileImage.png')} /> */}
+                {/* </View> */}
+                <View style={{ flex:1, justifyContent: "center", alignItems: "center", textAlign: 'center', padding: 30,  }}>
+                    <Text style={{ color: '#05527c', fontSize: width / 16, fontWeight: 'bold', paddingBottom: 15 }}>
+                        Vizkard FAQ
                             </Text>
-                            <Text style={{ color: '#f09291',justifyContent: "center", alignItems: "center", textAlign:"center" }}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum</Text>
-                            
 
-                        </View>
-                    {/* </View> */}
-                    {/* <View style={{ flex: 0.4, backgroundColor: '#eeeeee', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ justifyContent: "center", alignItems: "center", textAlign: 'center', paddingBottom: 25 }}>
+                        <Text style={{ color: '#000', justifyContent: 'flex-start', textAlign: 'left', fontWeight: 'bold', paddingBottom: 8 }}>
+                            Is Vizkard a social platform?
+                            </Text>
+                        <Text style={{ color: '#000', justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                            Yes, Vizkard is a professional social platform, aimed at connecting professionals across industries so they can connect on the basis of their skills, their specialization and their careers.
+                            </Text>
+                    </View>
+                    <View style={{ justifyContent: "center", alignItems: "center", textAlign: 'center', paddingBottom: 25 }}>
+                        <Text style={{ color: '#000', justifyContent: 'flex-start', textAlign: 'left', fontWeight: 'bold' ,paddingBottom: 8}}>
+                        Is Vizkard free to use for everyone?
+                        </Text>
+                        <Text style={{ color: '#000', justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                        Yes, Vizkard is a free to use platform, with the ability to promote your profile, or your business via a paid feature.
+                            </Text>
+                    </View>
+
+                    <View style={{ justifyContent: "center", alignItems: "center", textAlign: 'center', paddingBottom: 25 }}>
+                        <Text style={{ color: '#000', justifyContent: 'flex-start', textAlign: 'left', fontWeight: 'bold',paddingBottom: 8 }}>
+                        Has Vizkard been developed locally? (In Pakistan)
+                            </Text>
+                        <Text style={{ color: '#000', justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                        Yes, Vizkard is a pure local development project, headed by professionals working {'&'} living in Karachi.
+                            </Text>
+                    </View>
+                    <View style={{ justifyContent: "center", alignItems: "center", textAlign: 'center', paddingBottom: 25 }}>
+                        <Text style={{ color: '#000', justifyContent: 'flex-start', textAlign: 'left', fontWeight: 'bold',paddingBottom: 8 }}>
+                        Will Vizkard direct ads towards me?
+                            </Text>
+                        <Text style={{ color: '#000', justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+                        Yes, Vizkard aims to direct ads to you based on your interests - that too, in a non-intrusive manner.
+                            </Text>
+                    </View>
+                    <View style={{ justifyContent: "center", alignItems: "center", textAlign: 'center', paddingBottom: 25 }}>
+                        <Text style={{ color: '#000', justifyContent: 'flex-start', textAlign: 'left', fontWeight: 'bold',paddingBottom: 8 }}>
+                        Will Vizkard evolve and grow as a platform for professional?
+                            </Text>
+                        <Text style={{ color: '#000', justifyContent: "center", alignItems: "center", textAlign: "center" ,paddingBottom: 35}}>
+                        Absolutely, we have long development roadmap planned for this product.
+                            </Text>
+                    </View>
+                    <Text style={{ color: '#000', justifyContent: "center", alignItems: "center", textAlign: "center" , fontStyle:'italic'}}>
+                    For any further queries, feel free to get in touch via the 'Feedback' form in the app drawer menu.
+                            </Text>
+
+
+                </View>
+                {/* </View> */}
+                {/* <View style={{ flex: 0.4, backgroundColor: '#eeeeee', justifyContent: 'space-between', alignItems: 'center' }}>
                         <View
                             style={{
                                 flex: 0.2,
@@ -181,8 +247,8 @@ export default class Help extends Component {
                     </View> */}
 
 
-                </View>
-            </ScrollView>
+            </View>
+            // </ScrollView>
         )
     }
 }

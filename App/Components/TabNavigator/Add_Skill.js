@@ -25,40 +25,15 @@ class Add_Skill extends Component {
         const userID = this.props.userID.uid
         if (skill_name === '') {
             Alert.alert("", 'Add your Skills');
-        } else if (skill_name.includes('#') || skill_name.includes('[') || skill_name.includes(']') || skill_name.includes('$')) {
-            Alert.alert("", 'Please use only alphabets ');
-
         } else {
-            // let msgId = firebase
-            //     .database()
-            //     .ref(`users/${userID}`)
-            //     .child('Skills')
-            //     .push().key;
-
-
-            // let updates = {};
-            // let message = {
-            //     Skill: skill_name,
-
-
-            // };
-
-            // updates[
-            //     `users/${userID}/Skills/${msgId}`
-            // ] = message;
-
-            // firebase
-            //     .database()
-            //     .ref()
-            //     .update(updates)
-            firebase
+            
+             firebase
                 .database()
                 .ref(`users/${userID}`)
-                .child('Skills')
-                .child(`${skill_name}`)
-                .set({
-                    Skill: skill_name
-                })
+                .child('Skills').push({ Skill: skill_name }) 
+                // .set({
+                //     Skill: skill_name
+                // })
                 .then(() => {
                     this.setState({
                         skill_name: '',
