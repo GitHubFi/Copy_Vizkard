@@ -6,6 +6,7 @@ import { Card, CardItem, Input, Textarea, Icon, Container, Header, Left, Body, R
 import Entypo from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 // import Icon from "react-native-vector-icons/Ionicons";
+import Mailer from 'react-native-mail';
 import { connect } from 'react-redux';
 class Feedback extends Component {
     constructor() {
@@ -66,19 +67,48 @@ class Feedback extends Component {
             return
 
         }
-        let user = await AsyncStorage.getItem('User');
+        // let user = await AsyncStorage.getItem('User');
         // console.log(user, 'xxx')
-        let contactProperties = {
-            name,
-            email,
-            contactNo,
-            subject,
-            description,
-            user
-        }
+        // let contactProperties = {
+        //     name,
+        //     email,
+        //     contactNo,
+        //     subject,
+        //     description,
+        //     user
+        // }
         // this.props.contactComponent(contactProperties);
         // ToastAndroid.show('Thank You', ToastAndroid.SHORT);
         // this.props.navigation.navigate('dashBoard')
+
+        Mailer.mail({
+            subject: `${subject}`,
+            recipients: ['arcmage321@gmail.com'],
+            // ccRecipients: ['arcmage321CC@gmail.com'],
+            // bccRecipients: ['arcmage321BCC@gmail.com'],
+            body: `<b>Name : ${name}<b/> <br/>
+                    <b>Email : ${ email}</b> <br/>
+                    <b>Mobile Numner: ${ contactNo}</b> <br/>
+                     <p>Description : "<i> ${ description}</i> "</p>`,
+            isHTML: true,
+            // attachment: {
+            //     path: '',  // The absolute path of the file from which to read data.
+            //     type: '',   // Mime Type: jpg, png, doc, ppt, html, pdf, csv
+            //     name: '',   // Optional: Custom filename for attachment
+            // }
+        }, (error, event) => {
+            Alert.alert(
+                error,
+                event,
+                [
+                    { text: 'Ok', onPress: () => console.log('OK: Email Error Response') },
+                    { text: 'Cancel', onPress: () => console.log('CANCEL: Email Error Response') }
+                ],
+                { cancelable: true }
+            )
+        });
+        ToastAndroid.show('Thank You For Feedback', ToastAndroid.LONG);
+        this.props.navigation.navigate('Profile');
     }
 
     render() {
@@ -206,6 +236,7 @@ class Feedback extends Component {
                                 placeholderTextColor={"#24516e"}
                                 placeholder={"Contact No"}
                                 placeholder="Contact No"
+                                keyboardType={"numeric"}
                                 style={{ color: "#24516e" }}
                                 onChangeText={contactNo => this.setState({ contactNo })}
                             />
@@ -235,7 +266,10 @@ class Feedback extends Component {
                         </View>
                         {/* <View style={{marginRight:5}}> */}
 
-                        <Textarea rowSpan={5} value={this.state.description} bordered placeholder="Your Message" onChangeText={description => this.setState({ description })} style={{ margin: width / 36, color: "#24516e", width: width, backgroundColor: "#fff" }} />
+                        <Textarea rowSpan={5} value={this.state.description} bordered placeholder="Your Message"
+                            onChangeText={description => this.setState({ description })}
+                            keyboardType={'email-address'}
+                            style={{ margin: width / 36, color: "#24516e", width: width, backgroundColor: "#fff" }} />
 
                         {/* </View> */}
 
