@@ -13,7 +13,10 @@ import io.invertase.firebase.auth.RNFirebaseAuthPackage; // <-- Add this line
 import io.invertase.firebase.database.RNFirebaseDatabasePackage;
 import com.imagepicker.ImagePickerPackage; // <-- add this import
 import io.invertase.firebase.storage.RNFirebaseStoragePackage; // <-- Add this line
-// import com.RNFetchBlob.RNFetchBlobPackage; 
+import com.fetchsky.RNTextDetector.RNTextDetectorPackage;
+import io.invertase.firebase.messaging.RNFirebaseMessagingPackage; 
+import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +39,13 @@ public class MainApplication extends Application implements ReactApplication {
             new RNFirebaseAuthPackage(),
             new RNFirebaseDatabasePackage(),
             new ImagePickerPackage(),// <-- add this line
-            new RNFirebaseStoragePackage()
+            new RNFirebaseStoragePackage(),
+            new RNTextDetectorPackage(),
+            new RNFirebaseMessagingPackage(),// <-- Add this line
+            new RNFirebaseNotificationsPackage()
+            // new RNFirebaseNotificationsPackage()
+            // new RNFirebaseMessagingPackage(),
+            // new RNFirebaseNotificationsPackage()
             // new RNFetchBlobPackage() 
       );
     }

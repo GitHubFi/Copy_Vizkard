@@ -40,22 +40,25 @@ class Manage_Profile extends Component {
                 .child('userDetail')
                 .update({
                     name: skill_name
-                })
-                .then(() => {
+                }).then(() => {
+                    this.change_Name()
                     this.setState({
-                        skill_name: '',
+                        // skill_name: '',
                         submit: true
-                    });
+                    })
                     this.props.profileData(userID)
 
                     setTimeout(() => {
 
                         Alert.alert('', "your name has been successfully Changed");
+                        this.change_Name()
                         this.setState({
-                            submit: false
+                            submit: false,
+                            skill_name: ''
                         })
                     }, 3000);
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     Alert.alert("", err);
                 });
         }
@@ -76,7 +79,7 @@ class Manage_Profile extends Component {
                 })
                 .then(() => {
                     this.setState({
-                        company_name: '',
+                        // company_name: '',
                         submit_company_name: true
                     });
                     this.props.profileData(userID)
@@ -85,8 +88,10 @@ class Manage_Profile extends Component {
                     setTimeout(() => {
 
                         Alert.alert('', "your Company name has been successfully Changed");
+                        this.change_Company()
                         this.setState({
-                            submit_company_name: false
+                            submit_company_name: false,
+                            company_name: '',
                         })
                     }, 3000);
                 }).catch((err) => {
@@ -110,7 +115,7 @@ class Manage_Profile extends Component {
                 })
                 .then(() => {
                     this.setState({
-                        occupation: '',
+
                         submit_occupation_name: true
                     });
                     this.props.profileData(userID)
@@ -119,14 +124,83 @@ class Manage_Profile extends Component {
                     setTimeout(() => {
 
                         Alert.alert('', "your occupation has been successfully Changed");
+                        this.change_occupation()
                         this.setState({
-                            submit_occupation_name: false
+                            submit_occupation_name: false,
+                            occupation: '',
                         })
                     }, 3000);
                 }).catch((err) => {
                     Alert.alert("", err);
                 });
         }
+    }
+
+    change_Name = () => {
+        const { skill_name } = this.state;
+        let userID = this.props.userID.uid;
+        firebase.database().ref("users").child(`${userID}/FriendList`).on('value', snapshot => {
+            let userList = snapshot.val()
+            if (userList !== null) {
+                let userListKeys = Object.keys(userList);
+                let userID = this.props.userID.uid;
+
+                userListKeys.map(key => {
+                    firebase.database().ref('users').child(key).child(`FriendList/${userID}`).update({
+                        name: skill_name
+
+                    })
+                })
+            } else {
+
+            }
+
+        })
+    }
+
+
+    change_Company = () => {
+        const { company_name } = this.state;
+        let userID = this.props.userID.uid;
+        firebase.database().ref("users").child(`${userID}/FriendList`).on('value', snapshot => {
+            let userList = snapshot.val();
+            if (userList !== null) {
+                let userListKeys = Object.keys(userList);
+                let userID = this.props.userID.uid;
+
+                userListKeys.map(key => {
+                    firebase.database().ref('users').child(key).child(`FriendList/${userID}`).update({
+                        company: company_name
+
+                    })
+                })
+            } else {
+
+            }
+
+        })
+    }
+
+    change_occupation = () => {
+        const { occupation } = this.state;
+        let userID = this.props.userID.uid;
+        firebase.database().ref("users").child(`${userID}/FriendList`).on('value', snapshot => {
+            let userList = snapshot.val();
+            if (userList !== null) {
+                let userListKeys = Object.keys(userList);
+                let userID = this.props.userID.uid;
+
+                userListKeys.map(key => {
+                    firebase.database().ref('users').child(key).child(`FriendList/${userID}`).update({
+                        occupation: occupation
+
+                    })
+                })
+            } else {
+
+            }
+
+        })
     }
     render() {
 

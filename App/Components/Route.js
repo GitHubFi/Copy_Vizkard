@@ -24,6 +24,7 @@ import LogOut from './DrawerNavigator/LogOut'
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import ChatScreen from "./TabNavigator/ChatScreen";
 import PublicProfileDetail from './TabNavigator/publicProfileDetail'
+import AllFriendDetails from './TabNavigator/AllFriendDetails'
 const { width, height } = Dimensions.get("window");
 import { store } from '../Store'
 import firebase from 'react-native-firebase';
@@ -260,6 +261,9 @@ const VideoStack = createStackNavigator({
 const SearchFriendStack = createStackNavigator({
   SearchFriend: {
     screen: SearchFriend
+  },
+  AllFriendDetails: {
+    screen: AllFriendDetails
   }
 });
 

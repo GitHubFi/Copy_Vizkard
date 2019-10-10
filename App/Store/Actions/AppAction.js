@@ -199,13 +199,6 @@ function publicProfileSuccess(data) {
 export function friendRequestAction(payload, CurrUser, friendUid) {
   return dispatch => {
 
-    // firebase
-    //   .database()
-    //   .ref(`users/${CurrUser}`).child(`FriendList/${friendUid}`)
-    //   .set(payload).then(()=>{
-
-    //   })
-
     let msgId = firebase
       .database()
       .ref("Friend Request")
@@ -213,20 +206,16 @@ export function friendRequestAction(payload, CurrUser, friendUid) {
       .child(friendUid)
       .push().key;
 
-    // console.log(msgId)
-
     let updates = {};
 
     let Friend_Request = {
-      // message: this.state.textMessage,
-      // time: firebase.database.ServerValue.TIMESTAMP,
+
       to: friendUid,
       from: CurrUser,
       status: "send request"
     };
     let Friend_Accept = {
-      // message: this.state.textMessage,
-      // time: firebase.database.ServerValue.TIMESTAMP,
+
       to: CurrUser,
       from: friendUid,
       status: "accept request"
@@ -242,6 +231,13 @@ export function friendRequestAction(payload, CurrUser, friendUid) {
       .database()
       .ref()
       .update(updates);
+
+
+
+    firebase.database().ref(`friend_requst_function/${CurrUser}`).push({
+      sender_id: CurrUser,
+      accepter_id: friendUid
+    })
 
   }
 }
@@ -262,18 +258,6 @@ export function acceptRequestAction(payload, Current_User_Detail, CurrUser, frie
       .set(Current_User_Detail);
     //accept request
     //accept request
-
-
-
-    // let updates = {};
-    // let msgId = firebase
-    //   .database()
-    //   .ref("Friend Request")
-    //   .child(CurrUser)
-    //   .child(friendUid)
-    //   .push().key;
-
-
     // const BothAreFriend = "yes"
 
     firebase.database().ref(`Friend Request/${CurrUser}/${friendUid}/`).update({
@@ -283,23 +267,30 @@ export function acceptRequestAction(payload, Current_User_Detail, CurrUser, frie
       BothAreFriend: "yes"
     });
 
-    // updates[
-    //   `Friend Request/${CurrUser}/${friendUid}/${msgId}`
-    // ] = Friends;
-    // updates[
-    //   `Friend Request/${friendUid}/${CurrUser}/${msgId}`
-    // ] = Friends;
-
-    // firebase
-    //   .database()
-    //   .ref()
-    //   .update(updates);
   }
+}
+export function declineRequestAction(payload, Current_User_Detail, CurrUser, friendUid, status) {
+  return dispatch => {
+
+    const ref = firebase.database().ref("Friend Request").child(CurrUser).child(friendUid)
+    ref.orderByChild("status").equalTo(status.status).once("value", function (snapshot) {
+      snapshot.forEach(function (employee) {
+        employee.ref.remove({ status: status });
+      })
+    });
+
+    const ref1 = firebase.database().ref("Friend Request").child(friendUid).child(CurrUser)
+    ref1.orderByChild("status").equalTo("send request").once("value", function (snapshot) {
+      snapshot.forEach(function (employee) {
+        employee.ref.remove({ status: "send request" });
+      })
+    });
+  }
+
+
 }
 
 export function FriendRequestList(payload) {
-  // console.log(payload, "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM");
-
   return dispatch => {
     dispatch(GetRequestUser(payload));
 
@@ -314,25 +305,35 @@ function GetRequestUser(payload) {
   }
 }
 
-// export function All_Message_Action(user, user_ID) {
-//   return dispatch => {
+export function All_Message_Action(user, user_ID) {
+  return dispatch => {
+    firebase
+      .database()
+      .ref("messages")
+      .child(user)
+      .child(user_ID)
+      .on("value", snapshot => {
+        let user = snapshot.val();
+        if (user !== null) {
+          let All_message = Object.values(user);
+          console.log("all message", All_message)
+          let array = []
+          array.push(All_message)
 
+          dispatch(Get_All_Messsage(All_message));
+        } else {
 
-//     dispatch(Get_All_Messsage(array))
+        }
+      });
+  }
+}
 
-
-
-
-
-//   }
-// }
-
-// function Get_All_Messsage(array) {
-//   return {
-//     type: ActionTypes.GET_ALL_MESSAGES,
-//     payload: array
-//   }
-// }
+function Get_All_Messsage(All_message) {
+  return {
+    type: ActionTypes.GET_ALL_MESSAGES,
+    payload: All_message
+  }
+}
 
 
 export function GetUserAction(userID) {
@@ -409,3 +410,105 @@ function GET_Skill_NEW_ARRAY() {
 
   };
 }
+
+
+
+export function getTextDetectorAction(TextDetector) {
+  return dispatch => {
+
+    dispatch(GetTextProgress());
+    let array = []
+    if (TextDetector !== null) {
+
+      dispatch(GetTextSuccess(TextDetector));
+    } else {
+      // array.push(TextDetector)
+
+    }
+
+  }
+}
+
+function GetTextProgress() {
+  // console.log(array);
+  return {
+    type: ActionTypes.GET_TEXT_PROGRESS,
+
+  };
+}
+
+function GetTextSuccess(TextDetector) {
+  // console.log(array);
+  return {
+    type: ActionTypes.GET_TEXT_SUCCESS,
+    payload: TextDetector
+  };
+}
+
+// export function hide_city_action(user) {
+//   return dispatch => {
+//     firebase.database()
+//       .ref("privacy/hide_city")
+//       .child(user)
+//       .on("child_added", value => {
+//         let data = value.val();
+
+//         dispatch(hide_city_success(data))
+//       });
+
+//   }
+
+// }
+
+// function hide_city_success(data) {
+//   return {
+//     type: ActionTypes.GET_HIDE_CITY,
+//     payload: data
+//   }
+// }
+
+// export function hide_phone_action(user) {
+//   return dispatch => {
+//     firebase.database()
+//       .ref("privacy/hide_phone")
+//       .child(user)
+//       .on("child_added", value => {
+//         let data = value.val();
+
+//         dispatch(hide_phone_success(data))
+//       });
+
+//   }
+
+// }
+
+// function hide_phone_success(data) {
+//   return {
+//     type: ActionTypes.GET_HIDE_PHONE,
+//     payload: data
+//   }
+// }
+
+// export function hide_profession_action(user) {
+//   return dispatch => {
+//     firebase.database()
+//       .ref("privacy/hide_profession")
+//       .child(user)
+//       .on("child_added", value => {
+//         let data = value.val();
+
+//         dispatch(hide_profession_success(data))
+//       });
+
+//   }
+
+// }
+
+// function hide_profession_success(data) {
+//   return {
+//     type: ActionTypes.GET_PROFESSION_PHONE,
+//     payload: data
+//   }
+// }
+
+

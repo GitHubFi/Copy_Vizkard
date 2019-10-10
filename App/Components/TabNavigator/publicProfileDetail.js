@@ -1,11 +1,14 @@
 import React, { Component } from "react";
-import { View, Dimensions, Image, Text, ScrollView, TouchableOpacity, Alert, AsyncStorage } from "react-native";
+import { View, Dimensions, Image, Text, ScrollView, TouchableOpacity, Alert, AsyncStorage, } from "react-native";
 const { width, height } = Dimensions.get("window");
-import { Item, Input, Content, Fab, Button, Icon } from "native-base";
+import { Item, Input, Content, Fab, Button, Icon, List, ListItem, Thumbnail, Left, Body, Right, } from "native-base";
 import { connect } from "react-redux";
-import { friendRequestAction, FriendRequestList, acceptRequestAction } from '../../Store/Actions/AppAction';
-import Ionicons from "react-native-vector-icons/Ionicons";
-import Entypo from "react-native-vector-icons/Entypo";
+import { friendRequestAction, FriendRequestList, acceptRequestAction, declineRequestAction } from '../../Store/Actions/AppAction';
+import { Linking } from 'react-native'
+// import Ionicons from "react-native-vector-icons/Ionicons";
+// import Entypo from "react-native-vector-icons/Entypo";
+// import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+// import FontAwesome from "react-native-vector-icons/FontAwesome";
 // import Icon from 'react-native-vector-icons/FontAwesome';
 
 import firebase from "react-native-firebase";
@@ -29,7 +32,13 @@ class PublicProfileDetail extends Component {
             total_experience: [],
             total_Skills: [],
             total_Friends: [],
-            TagSate: null
+            TagSate: null,
+            hide_skill: null,
+            hide_experience: null,
+            hide_city: null,
+            hide_phone: null,
+            hide_profession: null,
+
 
 
 
@@ -134,7 +143,7 @@ class PublicProfileDetail extends Component {
             this.setState({
                 status: status
             })
-            // console.log(status, "STATUS FROM FIREBASE ")
+
         });
 
         firebase
@@ -191,29 +200,82 @@ class PublicProfileDetail extends Component {
                 })
             });
 
+        // let userDetail = this.props.navigation.getParam('detailUser');
+        let user = userDetail.uid
+        firebase
+            .database()
+            .ref("user_privacy")
+            .child(user_uid)
+            .on("child_added", value => {
+                this.setState({
+                    hide_skill: value.val()
+                })
+                console.log(value, "value")
+            });
+        firebase
+            .database()
+            .ref("user_experience_hide")
+            .child(user_uid)
+            .on("child_added", value => {
+                this.setState({
+                    hide_experience: value.val()
+                })
+                console.log(value, "value")
+            });
 
+        firebase
+            .database()
+            .ref("privacy/hide_city")
+            .child(user)
+            .on("child_added", value => {
+                this.setState({
+                    hide_city: value.val()
+                })
+                console.log(value, "value")
+            });
+        firebase
+            .database()
+            .ref("privacy/hide_phone")
+            .child(user)
+            .on("child_added", value => {
+                this.setState({
+                    hide_phone: value.val()
+                })
+                console.log(value, "value")
+            });
+        firebase
+            .database()
+            .ref("privacy/hide_profession")
+            .child(user)
+            .on("child_added", value => {
+                this.setState({
+                    hide_profession: value.val()
+                })
+                console.log(value, "value")
+            });
+    }
+    update_State = () => {
+        const CurrUser = this.props.userID.uid;
+        let userDetail = this.props.navigation.getParam('detailUser');
+        let user_uid = userDetail.uid;
+        let request = firebase.database().ref(`Friend Request/${CurrUser}/${user_uid}`);
+        request.on("child_added", val => {
+            let status = val.val();
+            this.setState({
+                status: status
+            })
+
+        });
     }
 
 
     componentDidMount() {
-        const CurrUser = this.props.userID.uid;
-        let userDetail = this.props.navigation.getParam('detailUser');
-        let user_uid = userDetail.uid;
-        let request2 = firebase.database().ref(`Friend Request/${user_uid}/${CurrUser}`);
-        request2.on("child_added", val => {
-            let Request_Status = val.val();
-            this.setState({
-                Request_Status: Request_Status
-            })
-            // console.log(status, "STATUS FROM FIREBASE ")
-        });
-
-
+        this.update_State();
 
     }
     async sendFriendRequest(userDetail) {
         let userPhone = await AsyncStorage.getItem('user');
-        Alert.alert("Sent Friend Request to", userDetail.name)
+        Alert.alert("", `Sent Friend Request to ${userDetail.name}`)
         this.setState({
             isFriend: true,
             AcceptID: userDetail.phoneNumber
@@ -238,390 +300,386 @@ class PublicProfileDetail extends Component {
 
     }
 
+    DeclineRequest(userDetail) {
+
+        const CurrUser = this.props.userID.uid;
+        const friendUid = userDetail.uid;
+        const Current_User_Detail = this.state.Detail
+        this.props.Decline_Request_Action(userDetail, Current_User_Detail, CurrUser, friendUid, this.state.status)
+        Alert.alert("You Successfully Decilne Friend Request");
+
+
+    }
+    onShare = async () => {
+        try {
+            const result = await Share.share({
+                message:
+                    'React Native | A framework for building native apps using React',
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // shared with activity type of result.activityType
+                } else {
+                    // shared
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // dismissed
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
+
     render() {
         let userDetail = this.props.navigation.getParam('detailUser');
-        // console.log(this.state.Detail, "STATUS====Detail")
         return (
-            // <ScrollView
-            //     contentContainerStyle={{
-            //         height: height - 80,
-
-            //         width
-            //     }}
-            //     keyboardDismissMode="interactive"
-            //     keyboardShouldPersistTaps="handled"
-            // >
-            <View style={{ flex: 1 }}>
-                <View
-                    style={{
-                        flex: 0.4,
-                        backgroundColor: "#0071CE",
-                        flexDirection: "row"
-                    }}
-                >
+            <ScrollView
+                contentContainerStyle={{
+                    // height: height / -20,
+                    // backgroundColor: "red",
+                    width
+                }}
+                style={{ backgroundColor: "#fff" }}>
+                <View style={{ flex: 1, backgroundColor: "#fff" }}>
                     <View
-                        style={{
-                            flex: 0.5,
-                            marginTop: width / 20,
-                            marginLeft: width / 20
-                        }}
-                    >
-                        <Text
-                            style={{
-                                fontSize: width / 18,
-                                fontWeight: "bold",
-                                color: "#fff"
-                            }}
-                        >
-                            {/* Hamza Khan */}
-                            {userDetail.name}
-                        </Text>
-                        <Text
-                            style={{
-                                fontSize: width / 26,
-                                fontWeight: "bold",
-                                color: "#fff"
-                            }}
-                        >
-                            {/* Graphic Designer */}
-                            {userDetail.occupation}
-                        </Text>
-                        <Text
-                            style={{
-                                fontSize: width / 20,
-                                fontWeight: "bold",
-                                color: "#fff",
-                                paddingRight: 5,
-                            }}
-                        >
-                            {this.state.total_Friends.length}{" "}
-                            <Ionicons
-                                name="md-people"
-                                size={width / 15}
-                                color="#fff"
-                                style={{ marginLeft: 15, paddingLeft: 10 }}
-                            />
-                        </Text>
-
-                        <Text
-                            style={{
-                                fontSize: width / 25,
-                                fontWeight: "bold",
-                                color: "#fff",
-                                marginTop: width / 20
-                            }}
-                        >
-                            Say hi,to {userDetail.company} {"\n"}
-                            {
-                                (this.state.TagSate !== null) ?
-
-                                    this.state.TagSate
-                                    : `No Tag Line Found`
-                            }
-                        </Text>
-
-
-
-
-                    </View>
-
-                    <View
-                        style={{
-                            flex: 0.5,
-                            marginRight: 5,
-                            marginTop: 10,
-                            justifyContent: "space-between"
-                        }}
-                    >
-
-
+                        style={{ flex: 0.2, backgroundColor: "#0071CE", }}  >
                         <View
-
-                            style={{ flex: 0.2, flexWrap: "wrap", alignSelf: "flex-end" }}
+                            style={{
+                                flex: 0.5,
+                                marginTop: width / 20,
+                            }}
                         >
+                            <List style={{}}>
+                                <ListItem noBorder thumbnail>
+                                    <Left>
 
+                                        <Thumbnail
+                                            style={{ borderRadius: 30 / 4 }} large
+                                            square source={{ uri: userDetail.url }} />
+
+                                    </Left>
+                                    <Body>
+                                        <Text style={{ fontSize: width / 20, color: "#fff", fontWeight: "bold" }}>
+                                            Say hi to add your tagline
+                                        </Text>
+                                    </Body>
+                                </ListItem>
+                            </List>
+                        </View>
+                    </View>
+                    <View style={{ flex: 0.8, backgroundColor: "#fff", }}>
+                        <View
+                            style={{ flex: 1, backgroundColor: "#fff", }}>
+                            <List style={{}}>
+                                <ListItem noBorder thumbnail>
+
+                                    <Body>
+                                        <Text style={{ fontSize: width / 20, }}>{userDetail.name}</Text>
+                                        <Text note numberOfLines={1}> {
+                                            this.state.hide_profession === true ?
+                                                'profession hide from user' :
+                                                userDetail.occupation}/{userDetail.company} </Text>
+                                        <Text note numberOfLines={1}> {userDetail.email} - {
+                                            this.state.hide_phone === true ?
+                                                'Phone no. hide from user' :
+                                                userDetail.phoneNumber} </Text>
+                                        <Text note numberOfLines={1}> {userDetail.address} - {
+                                            this.state.hide_city === true ?
+                                                'City hide from user' :
+                                                userDetail.city}  </Text>
+                                        <Text note numberOfLines={1}> {userDetail.website} </Text>
+                                    </Body>
+
+                                </ListItem>
+                            </List>
                             {
                                 (this.state.status.status === "send request") ?
 
-                                    <Entypo.Button
+                                    <View style={{
+                                        flex: 0.5,
+                                        backgroundColor: "#fff",
+                                        textAlign: "center",
+                                        alignItems: "center",
+                                        justifyContent: 'center',
+                                        paddingTop: 5
+                                    }}>
+                                        <Button rounded light style={{
+                                            textAlign: "center",
+                                            alignItems: "center",
+                                            alignSelf: 'center',
+                                            justifyContent: 'center',
+                                            width: '80%',
+                                            borderColor: "#A9B3B6",
+                                            borderWidth: 0.5
 
-                                        backgroundColor="#3b5998"
-
-                                    >
-                                        Sent Request
-                                   </Entypo.Button>
+                                        }}>
+                                            <Text>Sent Request</Text>
+                                        </Button>
+                                    </View>
                                     : (this.state.status.to === userDetail.uid) ?
-                                        <View
-                                            style={{ flex: 0.2, flexWrap: "wrap", alignSelf: "flex-end" }}
-                                        >
+                                        <View style={{ backgroundColor: "#fff" }}>
                                             <View style={{
-                                                marginRight: 5
+                                                flex: 0.5, marginTop: 10, backgroundColor: "#fff",
+                                                flexDirection: "row", paddingTop: 10, paddingBottom: width / 5,
+                                                textAlign: "center",
+                                                alignItems: "center",
+                                                justifyContent: 'center'
                                             }}>
 
-                                                <Entypo.Button
+                                                <View style={{
+                                                    flex: 0.5,
+                                                    backgroundColor: "#fff",
+                                                    textAlign: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: 'center',
+                                                    paddingTop: 5
+                                                }}>
 
-                                                    backgroundColor="#3b5998"
-                                                    onPress={this.AcceptRequest.bind(this, userDetail)}
-                                                    style={{ marginRight: 5 }}
+                                                    <Button rounded light style={{
+                                                        textAlign: "center",
+                                                        alignItems: "center",
+                                                        alignSelf: 'center',
+                                                        justifyContent: 'center',
+                                                        width: '80%',
+                                                        borderColor: "#A9B3B6",
+                                                        borderWidth: 0.5
 
-                                                >
-                                                    Accept Request
-                                             </Entypo.Button>
+                                                    }}
+                                                        onPress={this.AcceptRequest.bind(this, userDetail)}>
+                                                        <Text>Accept</Text>
+                                                    </Button>
+
+                                                </View>
+                                                <View style={{
+                                                    flex: 0.5,
+                                                    backgroundColor: "#fff",
+                                                    textAlign: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: 'center',
+                                                    paddingTop: 5
+                                                }}>
+
+                                                    <Button rounded light style={{
+                                                        textAlign: "center",
+                                                        alignItems: "center",
+                                                        alignSelf: 'center',
+                                                        justifyContent: 'center',
+                                                        width: '80%',
+                                                        borderColor: "#A9B3B6",
+                                                        borderWidth: 0.5
+
+                                                    }}
+                                                        onPress={this.DeclineRequest.bind(this, userDetail)}  >
+                                                        <Text>Decline</Text>
+                                                    </Button>
+                                                </View>
+
                                             </View>
-                                            <View style={{
-                                                marginLeft: 5
-                                            }}>
-
-                                                <Entypo.Button
-
-                                                    backgroundColor="#3b5998"
-
-                                                >
-                                                    Decline
-                                             </Entypo.Button>
+                                            <View
+                                                style={{
+                                                    flex: 0.3,
+                                                    backgroundColor: "#fff",
+                                                    textAlign: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: 'center',
+                                                }}>
+                                                <Text style={{ fontSize: width / 20, }}>Hi, I would like to add you on Vizkard</Text>
                                             </View>
                                         </View>
-
-                                        :
-                                        (this.state.status === 'yes') ?
-                                            <Entypo.Button
-                                                name="user"
-                                                backgroundColor="#3b5998"
-
-                                            >
-
-                                                <Text style={{ color: "#fff" }}>Your are connected with </Text>
-                                                <Text style={{ color: "#fff" }}>{userDetail.name}</Text>
-                                            </Entypo.Button>
-                                            :
-                                            <Entypo.Button
-                                                name="add-user"
-                                                backgroundColor="#3b5998"
-                                                onPress={this.sendFriendRequest.bind(this, userDetail)}
-
-                                            >
-                                                Add Friend
-                                        </Entypo.Button>
-                            }
-
-                        </View>
-                    </View>
-                </View>
-                <View style={{ flex: 0.9, flexDirection: "row" }}>
-                    <View
-                        style={{
-                            flex: 0.4,
-                            backgroundColor: "#0071ce",
-                            textAlign: "center",
-                            alignItems: "center"
-                        }}
-                    >
-                        <View style={{ flex: 0.1, marginTop: 10 }}>
-                            <Text style={{ color: "#fff", fontWeight: "bold", paddingBottom: 10 }}>Focus / Skills</Text>
-                        </View>
-                        <ScrollView>
-                            <View
-                                style={{ flex: 0.3, marginTop: 5 }}
-                            >
-                                {
-                                    (this.state.status === "yes") ?
-                                        this.state.total_Skills.slice(0).reverse().map((value, id) => {
-                                            return <Text key={id}
-                                                style={{
-                                                    color: "#fff", marginTop: 5, marginRight: 0,
-                                                    marginTop: 0, justifyContent: "center",
-                                                    textAlign: "center", paddingTop: 5
+                                        : (this.state.status === 'yes') ?
+                                            <View style={{
+                                                flex: 0.5, marginTop: 10, backgroundColor: "#fff",
+                                                flexDirection: "row", paddingTop: 10,
+                                                textAlign: "center",
+                                                alignItems: "center",
+                                                justifyContent: 'center'
+                                            }}>
+                                                <View style={{
+                                                    flex: 0.5,
+                                                    backgroundColor: "#fff",
+                                                    textAlign: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: 'center',
+                                                    paddingTop: 5
                                                 }}>
-                                                {value.Skill}
-                                            </Text>
-                                        })
-                                        : null
-                                }
 
-                                {/* <Image
-                                source={require("../../../assets/addskill.png")}
-                                resizeMode="contain"
-                                style={{ width: width / 16, height: height / 20 }}
-                            /> */}
-                            </View>
-                        </ScrollView>
 
-                        <View style={{ flex: 0.6 }}>
-                            {/* <Text style={{ color: "#fff" }}>On the Web</Text> */}
-                            {/* <View
-                                style={{
-                                    width: width / 5,
-                                    marginTop: 10,
-                                    height: height / 20,
-                                    flexWrap: "wrap",
-                                    backgroundColor: "#fff",
-                                    borderRadius: 10
-                                }}
-                            >
-                                <Image
-                                    source={require("../../../assets/expirence.png")}
-                                    resizeMode="contain"
-                                    style={{
-                                        width: width / 16,
-                                        height: height / 20,
-                                        borderRadius: 10
-                                    }}
-                                />
-                                <Input
-                                    style={{
-                                        backgroundColor: "#fff",
-                                        borderRadius: 10,
-                                        fontSize: width / 36
-                                    }}
-                                    placeholder="Link"
-                                />
-                            </View> */}
-                            {/* <View
-                                style={{
-                                    width: width / 5,
-                                    marginTop: 10,
-                                    height: height / 20,
-                                    flexWrap: "wrap",
-                                    backgroundColor: "#fff",
-                                    borderRadius: 10
-                                }}
-                            >
-                                <Image
-                                    source={require("../../../assets/expirence.png")}
-                                    resizeMode="contain"
-                                    style={{
-                                        width: width / 16,
-                                        height: height / 20,
-                                        borderRadius: 10
-                                    }}
-                                />
-                                <Input
-                                    style={{
-                                        backgroundColor: "#fff",
-                                        borderRadius: 10,
-                                        fontSize: width / 36
-                                    }}
-                                    placeholder="Link"
-                                />
-                            </View> */}
-                            {/* <View
-                                style={{
-                                    width: width / 5,
-                                    marginTop: 10,
-                                    height: height / 20,
-                                    flexWrap: "wrap",
-                                    backgroundColor: "#fff",
-                                    borderRadius: 10
-                                }}
-                            >
-                                <Image
-                                    source={require("../../../assets/expirence.png")}
-                                    resizeMode="contain"
-                                    style={{
-                                        width: width / 16,
-                                        height: height / 20,
-                                        borderRadius: 10
-                                    }}
-                                />
-                                <Input
-                                    style={{
-                                        backgroundColor: "#fff",
-                                        borderRadius: 10,
-                                        fontSize: width / 36
-                                    }}
-                                    placeholder="Link"
-                                />
-                            </View> */}
-                        </View>
-                    </View>
-                    <View style={{ flex: 0.7, marginLeft: 15 }}>
-                        <Text
-                            style={{
-                                fontSize: width / 20,
-                                paddingTop: 10,
-                                paddingBottom: 10,
-                                color: "#0033a0"
-                            }}
-                        >
-                            Work Expirence
+                                                    <Button rounded light style={{
+                                                        textAlign: "center",
+                                                        alignItems: "center",
+                                                        alignSelf: 'center',
+                                                        justifyContent: 'center',
+                                                        width: '80%',
+                                                        borderColor: "#A9B3B6",
+                                                        borderWidth: 0.5,
 
-                            </Text>
-                        <ScrollView>
-                            {/* <Text
-                                style={{
-                                    fontSize: width / 22,
-                                    paddingTop: 10,
-                                    paddingBottom: 10,
-                                    fontWeight: "bold"
-                                }}
-                            >
-                                JWT - Pakistan
-                                {"\n"}
-                                Creative Executive
-                            </Text> */}
+
+
+                                                    }}
+                                                        onPress={() =>
+                                                            this.props.navigation.navigate("ChatScreen", userDetail)
+                                                        }>
+                                                        <Text>Message</Text>
+                                                    </Button>
+
+                                                </View>
+                                                <View style={{
+                                                    flex: 0.5,
+                                                    backgroundColor: "#fff",
+                                                    textAlign: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: 'center',
+                                                    paddingTop: 5
+                                                }}>
+
+
+                                                    <Button rounded light style={{
+                                                        textAlign: "center",
+                                                        alignItems: "center",
+                                                        alignSelf: 'center',
+                                                        justifyContent: 'center',
+                                                        width: '80%',
+                                                        borderColor: "#A9B3B6",
+                                                        borderWidth: 0.5
+
+                                                    }}
+                                                        // onPress={this.onShare}
+                                                        onPress={() => Linking.openURL(`mailto:${userDetail.email}?subject=&body=`)}
+                                                    >
+                                                        <Text>Email</Text>
+                                                    </Button>
+
+                                                </View>
+                                                <View style={{
+                                                    flex: 0.5,
+                                                    backgroundColor: "#fff",
+                                                    textAlign: "center",
+                                                    alignItems: "center",
+                                                    justifyContent: 'center',
+                                                    paddingTop: 5
+                                                }}>
+
+
+                                                    <Button rounded light style={{
+                                                        textAlign: "center",
+                                                        alignItems: "center",
+                                                        alignSelf: 'center',
+                                                        justifyContent: 'center',
+                                                        width: '80%',
+                                                        borderColor: "#A9B3B6",
+                                                        borderWidth: 0.5
+
+                                                    }}
+                                                        onPress={() => Linking.openURL(`tel:${userDetail.phoneNumber}`)}>
+                                                        <Text>Call</Text>
+                                                    </Button>
+
+
+                                                </View>
+
+                                            </View>
+
+                                            :
+                                            <View style={{
+                                                flex: 0.5,
+                                                backgroundColor: "#fff",
+                                                textAlign: "center",
+                                                alignItems: "center",
+                                                justifyContent: 'center',
+                                                paddingTop: 5
+                                            }}>
+                                                <Button rounded light style={{
+                                                    textAlign: "center",
+                                                    alignItems: "center",
+                                                    alignSelf: 'center',
+                                                    justifyContent: 'center',
+                                                    width: '80%',
+                                                    borderColor: "#A9B3B6",
+                                                    borderWidth: 0.5
+
+                                                }}
+                                                    onPress={this.sendFriendRequest.bind(this, userDetail)} >
+                                                    <Text onPress={this.sendFriendRequest.bind(this, userDetail)}>Add Friend</Text>
+                                                </Button>
+                                            </View>
+                            }
 
                             {
                                 (this.state.status === 'yes') ?
-                                    this.state.total_experience.slice(0).reverse().map((value, id) => {
-                                        return <View key={id}>
-                                            <Text
+                                    <List style={{ paddingTop: 20 }}>
+                                        <ListItem itemDivider >
+                                            <Text style={{ fontWeight: 'bold' }}>Tag line</Text>
+                                        </ListItem>
+                                        <ListItem>
+                                            {
+                                                (this.state.TagSate !== null) ?
+                                                    <Text>{this.state.TagSate}</Text>
 
-                                                style={{
-                                                    fontSize: width / 22,
-                                                    paddingTop: 5,
-                                                    paddingBottom: 10,
-                                                    fontWeight: "bold"
-                                                }}
-                                            >
-                                                {value.Company}
-                                            </Text>
-                                            <Text
+                                                    : <Text>No Tag Line Found</Text>
+                                            }
 
-                                                style={{
-                                                    fontSize: width / 22,
-                                                    paddingTop: 0,
-                                                    paddingBottom: 10,
-                                                    fontWeight: "normal"
-                                                }}>{value.Experience}</Text>
-                                        </View>
+                                        </ListItem>
 
+                                        <ListItem itemDivider >
+                                            <Text style={{ fontWeight: 'bold' }}>Skills</Text>
+                                        </ListItem>
 
-                                    })
-                                    : <View>
-                                        <Text
-
-                                            style={{
-                                                fontSize: width / 22,
-                                                paddingTop: 5,
-                                                paddingBottom: 10,
-                                                fontWeight: "bold"
-                                            }}
-                                        >
-
+                                        {
+                                            this.state.hide_skill === true ?
+                                                <ListItem>
+                                                    <Text>
+                                                        Hide from user
                                         </Text>
+                                                </ListItem>
+                                                :
+                                                (this.state.status === "yes") ?
+                                                    this.state.total_Skills.slice(0).reverse().map((value, id) => {
+                                                        return <ListItem key={id}>
+                                                            <Text>
+                                                                {value.Skill}
+                                                            </Text>
+                                                        </ListItem>
+                                                    })
+                                                    : null
 
-                                    </View>
+                                        }
 
 
+                                        <ListItem itemDivider>
+                                            <Text style={{ fontWeight: 'bold' }}>Experience</Text>
+                                        </ListItem>
+                                        {
+                                            this.state.hide_experience === true ?
+                                                <ListItem>
+                                                    <Text>
+                                                        Hide from user
+                                        </Text>
+                                                </ListItem>
+
+                                                : this.state.total_experience.slice(0).reverse().map((value, id) => {
+                                                    return <ListItem key={id}>
+
+                                                        <Text>
+                                                            {value.Company}: {value.Experience}
+                                                        </Text>
+                                                    </ListItem>
+
+                                                })
+                                        }
+                                    </List>
+                                    : null
                             }
-                            {/* <Text>-----------------------------------------------------</Text> */}
-                            {/* <Text
-                                style={{
-                                    fontSize: width / 20,
-                                    paddingTop: 10,
-                                    paddingBottom: 10,
-                                    color: "#0033a0"
-                                }}
-                            >
-                                Add Work Expirence
-    
-    
-                            </Text> */}
-                        </ScrollView>
+                        </View>
+
+
+
                     </View>
+
                 </View>
-            </View>
-            // </ScrollView>
+            </ScrollView>
+
         );
     }
 }
@@ -649,7 +707,12 @@ function mapDispatchToProps(dispatch) {
         },
         Accept_Request_Action: (payload, Current_User_Detail, CurrUser, friendUid) => {
             dispatch(acceptRequestAction(payload, Current_User_Detail, CurrUser, friendUid));
-        }
+        },
+        Decline_Request_Action: (payload, Current_User_Detail, CurrUser, friendUid, status) => {
+            dispatch(declineRequestAction(payload, Current_User_Detail, CurrUser, friendUid, status));
+        },
+
+
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PublicProfileDetail);

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, StyleSheet, View, Alert, Dimensions, ScrollView, Modal, TouchableHighlight } from 'react-native';
-import { Container, Header, Content, Left, Body, Right, Button, Icon, Title, Item, Input, Label, Spinner } from 'native-base';
+import { Container, Header, Content, Left, Body, Right, Button, Icon, Title, Item, Input, Label, Spinner, List, ListItem } from 'native-base';
 import { connect } from 'react-redux';
 import firebase from "react-native-firebase";
 const { width, height } = Dimensions.get("window");
@@ -56,7 +56,7 @@ class ShowSkill extends Component {
         return (
             <ScrollView>
                 <View
-                    style={{ marginTop: 0, justifyContent: "center", textAlign: "center", padding: 10, margin: 0 }}>
+                    style={{ justifyContent: "center", textAlign: "center", }}>
 
                     {
                         (this.props.All_Skill !== null) ?
@@ -64,23 +64,29 @@ class ShowSkill extends Component {
 
                             this.props.All_Skill.map((value, id) => {
                                 return <View key={id}>
+                                    <List>
+                                        <ListItem key={id}>
+                                            <Text
+                                                style={{
+                                                    fontSize: width / 30,
+                                                    // paddingTop: 0,
+                                                    // paddingBottom: 10,
+                                                    fontWeight: "normal",
+                                                    color: "#000",
+                                                    // textAlign: "center",
+                                                    // justifyContent: "center"
 
-                                    <Text
-                                        style={{
-                                            fontSize: width / 30,
-                                            paddingTop: 0,
-                                            paddingBottom: 10,
-                                            fontWeight: "normal",
-                                            color: "#fff",
-                                            textAlign: "center",
-                                            justifyContent: "center"
+                                                }}
+                                                onPress={() => {
+                                                    this.setModalVisible1(true, value.Skill);
+                                                }}>
+                                                {value.Skill}
+                                            </Text>
+                                        </ListItem>
+                                    </List>
 
-                                        }}
-                                        onPress={() => {
-                                            this.setModalVisible1(true, value.Skill);
-                                        }}>
-                                        {value.Skill}
-                                    </Text>
+
+
                                     <Modal
                                         animationType='fade'
                                         transparent={false}

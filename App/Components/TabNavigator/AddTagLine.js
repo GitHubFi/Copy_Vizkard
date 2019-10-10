@@ -53,8 +53,8 @@ class AddTagLine extends Component {
         // console.log("waaaa", this.state.total_experience)
         return (
             <View
-                style={{ flex: 0.3, marginTop: 50, justifyContent: "center", textAlign: "center", padding: 10, margin: 20 }}>
-                <View style={{ paddingBottom: 20 }}>
+                style={{ flex: 0.3, marginTop: 0,  justifyContent: "center", textAlign: "center", padding: 10, margin: 10 }}>
+                <View style={{ paddingBottom: 10 }}>
                     <Item floatingLabel>
                         <Label>Add Tag Line</Label>
                         <Input

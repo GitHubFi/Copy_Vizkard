@@ -75,7 +75,8 @@ class MessageList extends Component {
       //   phone: props.navigation.state.params.uid,
       // },
       messageList: [],
-      users: []
+      users: [],
+      // badge_count: null
 
     };
   }
@@ -103,7 +104,7 @@ class MessageList extends Component {
       },
       headerRight: (
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => navigation.toggleDrawer()}
             style={{ marginRight: width / 28 }}
           >
@@ -112,7 +113,7 @@ class MessageList extends Component {
               resizeMode="contain"
               style={{ width: width / 12, marginLeft: 8, marginRight: -6 }}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             onPress={() => navigation.navigate("Profile")}
             style={{ marginRight: width / 28 }}
@@ -166,6 +167,23 @@ class MessageList extends Component {
           };
         });
       });
+
+
+    // firebase.notifications().getBadge()
+    //   .then(count => {
+    //     count++
+    //     firebase.notifications().setBadge(count);
+    //     console.log('Doing great', count);
+    //     this.setState({
+    //       badge_count: count
+    //     })
+    //   })
+    //   .then(() => {
+    //     console.log('Doing great')
+    //   })
+    //   .catch(error => {
+    //     console.log('fail to count')
+    //   })
   }
   render() {
     console.log(this.state.users)
@@ -183,7 +201,10 @@ class MessageList extends Component {
                   this.props.navigation.navigate("ChatScreen", item)
                 }>
                   <Left>
-                    <Thumbnail source={{ uri: item.url ? item.url : "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }} />
+                    <Thumbnail
+                      square style={{ borderRadius: 30 / 4 }}
+                      source={{ uri: item.url }} />
+
                   </Left>
                   <Body>
                     <Text style={{ fontSize: width / 20, }}> {item.name}</Text>
@@ -191,7 +212,7 @@ class MessageList extends Component {
                   </Body>
                   <Right>
 
-                    {/* <Text>3443</Text> */}
+                    {/* <Text>{this.state.badge_count}</Text> */}
                   </Right>
                 </ListItem>
               </List>
@@ -215,7 +236,7 @@ class MessageList extends Component {
 function mapStateToProps(state) {
 
   return {
-    userdDetail: state.appReducer.userdDetail,
+    // userdDetail: state.appReducer.userdDetail,
     phoneNumber: state.authReducer.phoneNumber,
     userID: state.authReducer.userID,
 

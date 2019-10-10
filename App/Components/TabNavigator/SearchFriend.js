@@ -15,6 +15,8 @@ import firebase from "react-native-firebase";
 import { connect } from "react-redux";
 import Demo from './Demo'
 import { ActionSheetCustom as ActionSheet } from 'react-native-actionsheet'
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+
 
 
 class SearchFriend extends Component {
@@ -54,7 +56,7 @@ class SearchFriend extends Component {
       headerRight: (
         <View style={{ flexDirection: "row" }}>
 
-          <Demo />
+          {/* <Demo /> */}
 
           <TouchableOpacity
             onPress={() => navigation.navigate("Profile")}
@@ -84,8 +86,8 @@ class SearchFriend extends Component {
       }
 
 
-      // return itemData.indexOf(textData) > -1;
-      // return newData
+      return itemData.indexOf(textData) > -1;
+      return newData
     });
 
     this.setState({
@@ -138,12 +140,21 @@ class SearchFriend extends Component {
         >
           <Input placeholder="  Search..."
             onChangeText={(text) => this.SearchFilterFunction(text)}
+            value={this.state.text}
             style={{
               paddingLeft: 10, padding: 10,
               paddingBottom: 15
             }}
           />
-          <Icon active name="search" size={width / 6} style={{ color: "#0033a0", paddingRight: 10, }} />
+          {
+            (this.state.text === '') ?
+              <Icon active name="search" size={width / 6} style={{ color: "#0033a0", paddingRight: 10, }} />
+              :
+              <MaterialCommunityIcons name="close"
+                onPress={() => { this.setState({ text: '' }) }}
+                size={width / 18}
+                style={{ color: "#0033a0", paddingRight: 10, }} />
+          }
         </Item>
 
         <FlatList
@@ -154,27 +165,32 @@ class SearchFriend extends Component {
             item ?
               <List >
                 <ListItem avatar
-                //    onPress={() =>
-                //  this.props.navigation.navigate("ChatScreen", item)}
-                //adsf
+                  onPress={() => this.props.navigation.navigate('AllFriendDetails', {
+                    detailUser: item
+                  })}
                 >
                   <Left>
+
                     <Thumbnail
-                      // source={{ uri: 'https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg' }}
-                      source={{ uri: item.url ? item.url : "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }}
+                      square
+                      style={{ borderRadius: 30 / 4 }}
+                      source={{ uri: item.url }}
                     />
+
+
+
                   </Left>
                   <Body>
                     <Text style={{ fontSize: width / 20, }}>{item.name}</Text>
                     <Text note  > {item.occupation} / {item.company}</Text>
-                    <Text note > {item.email} </Text>
-                    <Text note > {item.phoneNumber}</Text>
+                    <Text note > {item.email} /{item.phoneNumber} </Text>
+
                   </Body>
-                  <Right>
+                  {/* <Right>
                     <Icon active style={{ color: "blue", paddingTop: 15 }} name="share" />
-                  </Right>
+                  </Right> */}
                   <Right>
-                    <Icon active style={{ color: "red", paddingTop: 15 }} name="heart" />
+                    <Icon active style={{ color: "#000", paddingTop: 15 }} name="arrow-forward" />
                   </Right>
 
                 </ListItem>

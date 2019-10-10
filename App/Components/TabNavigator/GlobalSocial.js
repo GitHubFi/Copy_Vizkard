@@ -13,13 +13,32 @@ import {
   KeyboardAvoidingView,
   AsyncStorage
 } from "react-native";
-import { Item, Input, Icon } from "native-base";
+import { Item, Input, Icon, Button } from "native-base";
 const { width, height, scale, fontScale } = Dimensions.get("window");
 import { getAllUser } from '../../Store/Actions/AppAction'
 import { connect } from "react-redux";
 import firebase from "react-native-firebase";
+import RNTextDetector from "react-native-text-detector";
+import ImagePicker from 'react-native-image-picker';
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import Demo from './Demo'
 
 const numColumns = 3;
+const optionss = {
+  title: 'Select Business Card',
+  // chooseFromLibraryButtonTitle: "Choose Photo from Library",
+  // takePhotoButtonTitle: null,
+  quality: 0.8,
+  skipProcessing: true,
+
+  // maxWidth: 100,
+  // maxHeight: 100,
+  // customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
+  storageOptions: {
+    skipBackup: true,
+    // path: 'images',
+  },
+};
 class GlobalSocial extends Component {
   constructor() {
     super();
@@ -30,7 +49,18 @@ class GlobalSocial extends Component {
       dataSource: [],
       notFound: "no data found",
       users: [],
-      all_friend: []
+      all_friend: [],
+      getText: '',
+      errorMessage: null,
+      extractedText: '',
+      errorMessage: '',
+      hasErrored: false,
+      imageSource: null,
+      isLoading: false,
+      array: null,
+      detect_Email: '',
+      phone: '',
+      name: ''
 
     };
   }
@@ -74,8 +104,9 @@ class GlobalSocial extends Component {
       },
       headerRight: (
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
-            onPress={() => navigation.toggleDrawer()}
+
+          < TouchableOpacity
+            onPress={navigation.getParam("saveProfile")}
             style={{ marginRight: width / 28 }}
           >
             <Image
@@ -84,6 +115,12 @@ class GlobalSocial extends Component {
               style={{ width: width / 12, marginLeft: 8, marginRight: -6 }}
             />
           </TouchableOpacity>
+
+
+
+
+          {/* < Demo /> */}
+
           <TouchableOpacity
             onPress={() => navigation.navigate("Profile")}
             style={{ marginRight: width / 28 }}
@@ -94,10 +131,73 @@ class GlobalSocial extends Component {
               style={{ width: width / 12, marginLeft: 8, marginRight: -6 }}
             />
           </TouchableOpacity>
-        </View>
+        </View >
       )
     };
   };
+  selectImage = () => {
+
+    ImagePicker.showImagePicker(optionss, (response) => {
+      if (response !== null) {
+
+        console.log('Response = ', response.path);
+        const uri = response.uri
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+        } else if (response.customButton) {
+          console.log('User tapped custom button: ', response.customButton);
+        } else {
+          this.setState({
+            imageSource: uri
+          })
+          this.detectText(uri)
+        }
+      } else {
+      }
+
+    });
+  }
+
+  detectText = (path) => {
+    RNTextDetector.detectFromUri(path)
+      .then((result) => {
+        console.log('visionResp', result); /// an array having 2 object name text{} and bounding text have all text and bounding have height width left  top
+        console.log("visionRespr: ", result);
+        // if (result !== null) {
+        this.setState({
+          array: result
+        })
+
+        // this.props.getTextDetector(result)
+        // } else {
+        // }
+      })
+      .catch((error) => {
+        console.log("textDetector error: ", error);
+      })
+
+  }
+
+
+  functionScanCard = () => {
+    Alert.alert(
+      'Scan Business Card With Only Mobile Number',
+      '',
+      [
+        // { text: 'Ask me later', onPress: () => console.log('Ask me later pressed') },
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        { text: 'Scan', onPress: this.selectImage },
+      ],
+      { cancelable: false },
+    );
+
+  }
   setModalVisible(visible) {
     this.setState({ modalVisible: visible });
   }
@@ -119,32 +219,16 @@ class GlobalSocial extends Component {
         // console.log(user._auth._user._user.uid, "uid")
         await AsyncStorage.setItem('User', user._auth._user._user.uid)
 
-
       } else {
-        // ...
-        // console.log('errorss')
+
       }
     });
-
-
-    // firebase
-    // .database()
-    // .ref("users")
-    // .child("FriendList")
-    // .on("child_added", value => {
-    //   this.setState(prevState => {
-    //     return {
-    //       all_friend: [...prevState.all_friend, value.val()]
-    //     };
-    //   });
-    // });
 
     let currentUser = firebase.auth().currentUser
     this.setModalVisible(true)
     this.props.getAllUserComp()
 
   }
-
 
   SearchFilterFunction(text) {
     //passing the inserted text in textinput
@@ -153,28 +237,86 @@ class GlobalSocial extends Component {
       const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
       const textData = text.toUpperCase();
 
-      if (text === item.name) {
-        return item
+      if (textData === itemData.name) {
+        return (
+
+          item
+
+        )
       } else if (text === item.email) {
         return item
       } else if (text === item.company) {
         return item
       } else if (text === item.city) {
         return item
+      } else if (text === item.phoneNumber) {
+        return item
       }
-
-      // return itemData.indexOf(textData) > -1;
-      // return newData
+      return itemData.indexOf(textData) > -1;
+      return newData
     });
 
     this.setState({
-      //setting the filtered newData on datasource
-      //After setting the data it will automatically re-render the view
+
       dataSource: newData,
       text: text,
 
     });
   }
+  SearchFilter(text) {
+
+    console.log(text, "mmmmm")
+    const newData = this.props.allUserListComp.filter(function (item) {
+      const itemData = item.phoneNumber ? item.phoneNumber.toUpperCase() : ''.toUpperCase();
+      const textData = text.toUpperCase();
+
+      if (text === item.phoneNumber) {
+        return item
+      }
+
+      return itemData.indexOf(textData) > -1;
+      // return newData
+    });
+
+    this.setState({
+
+      dataSource: newData,
+      text: text,
+      phone: text
+    });
+  }
+
+  SearchText = () => {
+
+    let arrayDetectText = this.state.array
+
+    if (arrayDetectText !== null) {
+
+      arrayDetectText.map((data) => {
+        let text = data.text
+        this.SearchFilter(text)
+
+      })
+
+
+
+    } else {
+
+    }
+
+  }
+
+  componentDidMount() {
+    this.props.navigation.setParams({
+
+      saveProfile: this.functionScanCard,
+
+    });
+
+
+  }
+
+
 
   renderItem = ({ item, index }) => {
     if (item.empty === true || item.uid === this.props.userID.uid) {
@@ -198,7 +340,7 @@ class GlobalSocial extends Component {
 
     return (
       <TouchableOpacity
-        // keyExtractor={index}
+        // keyExtractor={(item, index) => index.toString()}
         style={{
           flex: 1,
           margin: 1,
@@ -214,7 +356,7 @@ class GlobalSocial extends Component {
           style={{ flex: 0.4 }}
         >
           <Image
-            source={{ uri: item.url ? item.url : "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg" }}
+            source={{ uri: item.url }}
             style={{ width: width / 3.2, height: height / 6 }}
           />
         </View>
@@ -261,7 +403,7 @@ class GlobalSocial extends Component {
                   style={{ width: width / 30, height: height / 30 }}
                 /> */}
               </View>
-              <View style={{ marginLeft: width / 0 }}>
+              <View>
                 <Text style={{ color: '#fff' }}></Text>
               </View>
             </View>
@@ -280,13 +422,14 @@ class GlobalSocial extends Component {
   render() {
     // console.log(this.props.allUserListComp)
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: "#fff" }}>
         {/* <KeyboardAvoidingView contentContainerStyle={{
           height: height - 20,
           width,
           backgroundColor: "#272727"
         }}
         behavior="position"> */}
+
         <View
           style={{
             flex: 0.3,
@@ -295,6 +438,7 @@ class GlobalSocial extends Component {
             // height:height
           }}
         >
+
           <View style={{ paddingTop: width / 14 }}>
             <Item
               rounded
@@ -306,9 +450,9 @@ class GlobalSocial extends Component {
             >
               <Input placeholder="Name"
                 onChangeText={text => this.SearchFilterFunction(text)}
-              // value={this.state.text}
-              // onChangeText={(searchName)=> this.setState({searchName: searchName})}
+
               />
+              <Icon active name="search" size={width / 6} style={{ color: "#0033a0", paddingRight: 10, }} />
             </Item>
             <Item
               rounded
@@ -321,10 +465,12 @@ class GlobalSocial extends Component {
             >
               <Input placeholder="Company Name"
                 onChangeText={text => this.SearchFilterFunction(text)}
-              // value={this.state.company}
+
               />
+              <Icon active name="search" size={width / 6} style={{ color: "#0033a0", paddingRight: 10, }} />
             </Item>
           </View>
+
           <View style={{ paddingTop: width / 14 }}>
             <Item
               rounded
@@ -334,10 +480,33 @@ class GlobalSocial extends Component {
                 height: height / 18
               }}
             >
-              <Input placeholder="Designation"
+              <Input placeholder="Phone number"
                 onChangeText={text => this.SearchFilterFunction(text)}
-              // value={this.state.city}
+                keyboardType="number-pad"
+                value={this.state.phone === '' ? null : this.state.text}
               />
+
+              {
+                this.state.array !== null ?
+
+                  <View style={{ flexDirection: "row" }}>
+
+                    <MaterialCommunityIcons name="credit-card-scan"
+                      onPress={() => { this.SearchText() }}
+                      size={width / 18}
+                      style={{ color: "#0033a0", paddingRight: 10, }} />
+
+
+                    <MaterialCommunityIcons name="close"
+                      onPress={() => { this.setState({ array: null, phone: '', text: '' }) }}
+                      size={width / 18}
+                      style={{ color: "#0033a0", paddingRight: 10, }} />
+
+                  </View>
+
+
+                  : <Icon active name="search" size={width / 6} style={{ color: "#0033a0", paddingRight: 10, }} />
+              }
             </Item>
             <Item
               rounded
@@ -351,12 +520,14 @@ class GlobalSocial extends Component {
               <Input
                 placeholder="E-mail"
                 onChangeText={text => this.SearchFilterFunction(text)}
-              // value={this.state.email} 
+                value={this.state.email}
               />
+              <Icon active name="search" size={width / 6} style={{ color: "#0033a0", paddingRight: 10, }} />
             </Item>
           </View>
+
         </View>
-        {/* </KeyboardAvoidingView> */}
+
         <View style={{ flex: 0.7 }}>
           {this.props.allUserListComp.length !== 0 ?
             <FlatList
@@ -366,11 +537,12 @@ class GlobalSocial extends Component {
               renderItem={this.renderItem}
               // enableEmptySections={true}
               numColumns={numColumns}
-              keyExtractor={item => item.phone}
+              keyExtractor={(item, index) => index.toString()}
             />
             : null
           }
         </View>
+
         <Modal
           animationType="fade"
           transparent={false}
@@ -419,15 +591,17 @@ class GlobalSocial extends Component {
           </View>
         </Modal>
 
+
       </View>
     );
   }
 }
 function mapStateToProps(state) {
-  // console.log(state.appReducer.allUserListComp, "FRIENDLST DATA CHEKNG")
+  console.log(state.appReducer.getTextDetected, "Array of detected text")
   return {
     allUserListComp: state.appReducer.allUserPublicList,
     userID: state.authReducer.userID,
+    getTextDetected: state.authReducer.getTextDetected
   }
 }
 function mapDispatchToProps(dispatch) {

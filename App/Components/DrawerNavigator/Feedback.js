@@ -83,7 +83,7 @@ class Feedback extends Component {
 
         Mailer.mail({
             subject: `${subject}`,
-            recipients: ['arcmage321@gmail.com'],
+            recipients: ['vizkardapp@gmail.com'],
             // ccRecipients: ['arcmage321CC@gmail.com'],
             // bccRecipients: ['arcmage321BCC@gmail.com'],
             body: `<b>Name : ${name}<b/> <br/>
@@ -135,7 +135,7 @@ class Feedback extends Component {
                         <Title
                             style={{ alignSelf: "center" }}
                         // style={{ alignSelf: 'center', alignContent: "center", textAlign: 'center', justifyContent: 'center' }}
-                        >Notifications</Title>
+                        >Feedback</Title>
                     </Body>
                     <Right style={{ flex: 1 }}>
                         {/* <Icon name='menu' /> */}
@@ -169,9 +169,9 @@ class Feedback extends Component {
                         }}
                     >
                         <Text style={{ textAlign: 'center' }}>
-                            Your feedback is important to us and give us valuable {"\n"}
-                            insight to continuously improve and serve you better. {"\n"}
-                            For suggestions and feedback,fill the form below.
+                           Hi, Please tell us how  we  can improve.{"\n"}
+                            Your feedback is important for us. {"\n"}
+                           
              </Text>
                     </View>
                     <View style={{ flex: 0.6, backgroundColor: '#eeeeee', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -33,8 +33,21 @@ export default class Auth {
     static GET_Experience_SUCCESS = "GET_Experience_SUCCESS";
     static GET_Skill_SUCCESS = "GET_Skill_SUCCESS";
 
-    static GET_Skill_NEW_ARRAY = "GET_Skill_NEW_ARRAY"
-    // static GET_ALL_MESSAGES = "GET_ALL_MESSAGES"
+    static GET_Skill_NEW_ARRAY = "GET_Skill_NEW_ARRAY";
+
+
+    static GET_TEXT_PROGRESS = "GET_TEXT_PROGRESS";
+
+    static GET_TEXT_SUCCESS = "GET_TEXT_SUCCESS";
+
+
+    static GET_ALL_MESSAGES = "GET_ALL_MESSAGES";
+
+    // static GET_HIDE_CITY = "GET_HIDE_CITY";
+
+    // static GET_HIDE_PHONE = "GET_HIDE_PHONE";
+
+    // static GET_PROFESSION_PHONE = "GET_PROFESSION_PHONE";
     // 
 
 

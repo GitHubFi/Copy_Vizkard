@@ -8,7 +8,11 @@ let INITIAL_STATE = {
     allUserPublicList: [],
     All_Experience: null,
     All_Skill: null,
-    All_Message: null
+    All_Message: null,
+    // hide_city: null,
+    // hide_phone: null,
+    // hide_profession: null,
+    getTextDetected: null
 
 };
 export default (state = INITIAL_STATE, action) => {
@@ -32,16 +36,26 @@ export default (state = INITIAL_STATE, action) => {
         case actionTypes.GET_Skill_SUCCESS:
 
             return { ...state, All_Skill: action.payload };
+
         case actionTypes.GET_ALL_MESSAGES:
-            let array = []
-            let data = action.payload
-            let finalarray = data.slice(0).reverse()
-            let A = array.push(finalarray)
-            return { ...state, All_Message: A };
+
+            return { ...state, All_Message: action.payload.reverse() };
 
         case actionTypes.GET_Skill_NEW_ARRAY:
             return { ...state, All_Skill: null };
 
+        case actionTypes.GET_TEXT_SUCCESS:
+
+
+            return { ...state, getTextDetected: action.payload };
+
+        // case actionTypes.GET_HIDE_CITY:
+        //     return { ...state, hide_city: action.payload };
+
+        // case actionTypes.GET_HIDE_PHONE:
+        //     return { ...state, hide_phone: action.payload };
+        // case actionTypes.GET_PROFESSION_PHONE:
+        //     return { ...state, hide_profession: action.payload };
 
         default:
             return state;

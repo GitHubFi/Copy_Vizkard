@@ -9,15 +9,20 @@ import {
   FlatList,
   Dimensions,
   Image,
+  Alert,
   AsyncStorage,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback
 } from "react-native";
 import User from "../SignIn/User";
 import firebase from "react-native-firebase";
 const { height, width } = Dimensions.get("window");
 import Ionicons from "react-native-vector-icons/Ionicons";
+import Octicons from "react-native-vector-icons/Octicons";
 import { connect } from 'react-redux';
 import { All_Message_Action } from '../../Store/Actions/AppAction';
+import { Thumbnail } from 'native-base'
+
 
 class ChatScreen extends Component {
   constructor(props) {
@@ -27,12 +32,17 @@ class ChatScreen extends Component {
       person: {
         name: props.navigation.state.params.name,
         phone: props.navigation.state.params.uid,
+        Email: props.navigation.state.params.email,
+        url: props.navigation.state.params.url
       },
       textMessage: "",
       messageList: [],
       Meraj: props.navigation.state.params.name,
-      userName: ""
+      userName: "",
+      // monthToStart: ''
     };
+    this.onEndReachedCalledDuringMomentum = true;
+
   }
   static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state
@@ -43,16 +53,22 @@ class ChatScreen extends Component {
       },
       headerTintColor: "#fff",
       headerLeft: (
-        <Ionicons
-          name="ios-person"
+        // <Ionicons
+        //   name="ios-person"
+        //   size={width / 14}
+        //   color="#fff"
+        //   style={{ marginLeft: 15 }}
+        // />
+        <Thumbnail
           size={width / 14}
-          color="#fff"
-          style={{ marginLeft: 15 }}
-        />
+          // square
+          small
+          style={{ marginLeft: 15, borderRadius: 30 / 4 }}
+          source={{ uri: params.url }} />
       ),
       headerRight: (
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => navigation.toggleDrawer()}
             style={{ marginRight: width / 28 }}
           >
@@ -61,7 +77,7 @@ class ChatScreen extends Component {
               resizeMode="contain"
               style={{ width: width / 12, marginLeft: 8, marginRight: -6 }}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={{ marginRight: width / 28 }}
@@ -89,9 +105,8 @@ class ChatScreen extends Component {
       userName: meraj
     })
 
-    // const message = this.state.messageList
-
   }
+
   convertDate = time => {
     var timestamp = time.toString().substring(0, 10)
     const date = new Date(timestamp * 1000)
@@ -124,29 +139,43 @@ class ChatScreen extends Component {
 
   };
   componentWillMount() {
-    // let userPhone = await AsyncStorage.getItem('user')
-    // let userPhone =this.props.phoneNumber;
-    let userID = this.props.userID.uid;
-    firebase
-      .database()
-      .ref("messages")
-      .child(userID)
-      .child(this.state.person.phone)
-      .on("child_added", value => {
-        this.setState(prevState => {
-          return {
-            messageList: [...prevState.messageList, value.val()]
-          };
-        });
-      });
-    // const user_ID = this.state.person.phone
-    // this.props.Get_All_Message(userID, user_ID)
 
+    let userID = this.props.userID.uid;
+    const user_ID = this.state.person.phone
+    this.props.Get_All_Message(userID, user_ID)
+
+    // firebase
+    //   .database()
+    //   .ref("messages")
+    //   .child(userID)
+    //   .child(this.state.person.phone)
+    //   .on("child_added", value => {
+    //     this.setState(prevState => {
+    //       return {
+    //         messageList: [...prevState.messageList, value.val()]
+    //       };
+    //     });
+    //   });
+    const totaldata = this.props.Get_All_Message.length
+    this.setState({ monthToStart: totaldata })
+
+  }
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps.All_Message, "nextProps")
+    if (this.props.All_Message !== nextProps.All_Message) {
+      this.setState({
+        messageList: nextProps.All_Message,
+
+      })
+    }
   }
   sendMessage = async () => {
     // let userPhone = await AsyncStorage.getItem('user')
     // let userPhone =this.props.phoneNumber;
     let userID = this.props.userID.uid;
+    let email = this.props.userDetail.email;
+    let SenderName = this.props.userDetail.name
+
     if (this.state.textMessage.length > 0) {
       let msgId = firebase
         .database()
@@ -155,14 +184,16 @@ class ChatScreen extends Component {
         .child(this.state.person.phone)
         .push().key;
 
-      // console.log(msgId)
-
       let updates = {};
+
 
       let message = {
         message: this.state.textMessage,
         time: firebase.database.ServerValue.TIMESTAMP,
-        from: userID
+        from: userID,
+        SenderEmail: email,
+        ReceiverEmail: this.state.person.Email
+
       };
       updates[
         `messages/${userID}/${this.state.person.phone}/${msgId}`
@@ -170,6 +201,21 @@ class ChatScreen extends Component {
       updates[
         `messages/${this.state.person.phone}/${userID}/${msgId}`
       ] = message;
+
+      // message1[
+      //   `message1/${userID}`
+      // ]
+
+      firebase.database().ref('messages1').child(userID).push({
+        message: this.state.textMessage,
+        user_id: this.state.person.phone,
+        time: new Date().getTime(),
+        SenderEmail: email,
+        ReceiverEmail: this.state.person.Email,
+        SenderName: SenderName
+
+      })
+
 
       firebase
         .database()
@@ -182,43 +228,56 @@ class ChatScreen extends Component {
     // console.log(item, 'user list message')
 
     return (
-      <View
-        style={{
-          // flexDirection: "row",
-          width: "90%",
-          alignSelf: item.from === this.props.userID.uid ? "flex-end" : "flex-start",
-          backgroundColor: item.from === this.props.userID.uid ? "#2967cc" : "#e1e2e3",
-          borderRadius: 8,
-          marginBottom: 10,
-          // borderTopRightRadius: -10,
-
-        }}
-      >
-        <Text
+      <TouchableWithoutFeedback onLongPress={() => this.someHandlerFunction(item)}>
+        <View
           style={{
-            //color: "#fff",
-            color: item.from === this.props.userID.uid ? "#fff" : "#000",
-            padding: 10,
-            fontSize: 16,
-            // alignItems: "flex-start"
+            // flexDirection: "row",
+            width: "90%",
+            alignSelf: item.from === this.props.userID.uid ? "flex-end" : "flex-start",
+            backgroundColor: item.from === this.props.userID.uid ? "#2967cc" : "#e1e2e3",
+            borderRadius: 8,
+            marginBottom: 10,
+            // borderTopRightRadius: -10,
+
           }}
         >
-          {item.message}
+          {
+            (item.message === "you deleted this message") ?
 
-        </Text>
-        <Text
-          style={{
-            color: item.from === this.props.userID.uid ? "#fff" : "#000",
-            padding: 5,
-            fontSize: 12,
-            alignItems: "center",
-            justifyContent: 'center',
-            alignSelf: 'flex-end',
-            textAlign: "center"
-          }}
-        >
-          {this.convertTime(item.time)} {"  "}
+              <Text
+                style={{
+                  //color: "#fff",
+                  color: item.from === this.props.userID.uid ? "#fff" : "#000",
+                  padding: 12,
+                  paddingBottom: 10,
+                  fontSize: 16,
+                  fontStyle: 'italic'
+                  // alignItems: "flex-start"
+                }}
+              >
+                <Octicons
+                  name="circle-slash"
+                  size={width / 20}
 
+                  color="#fff"
+                  style={{ marginLeft: 15, marginTop: 15, marginTop: 10 }}
+                /> {item.message}
+
+              </Text>
+              : <Text
+                style={{
+                  //color: "#fff",
+                  color: item.from === this.props.userID.uid ? "#fff" : "#000",
+                  padding: 10,
+                  fontSize: 16,
+                  // fontStyle: 'italic'
+                  // alignItems: "flex-start"
+                }}
+              >
+                {item.message}
+
+              </Text>
+          }
           <Text
             style={{
               color: item.from === this.props.userID.uid ? "#fff" : "#000",
@@ -230,19 +289,116 @@ class ChatScreen extends Component {
               textAlign: "center"
             }}
           >
-            {this.convertDate(
-              item.time
-            )}
+            {this.convertTime(item.time)} {"  "}
+
+            <Text
+              style={{
+                color: item.from === this.props.userID.uid ? "#fff" : "#000",
+                padding: 5,
+                fontSize: 12,
+                alignItems: "center",
+                justifyContent: 'center',
+                alignSelf: 'flex-end',
+                textAlign: "center"
+              }}
+            >
+              {this.convertDate(
+                item.time
+              )}
+            </Text>
           </Text>
-        </Text>
-      </View>
+        </View>
+      </TouchableWithoutFeedback>
     );
   };
+
+  FriendMessageDelete = (item) => {
+    const my_id = this.props.userID.uid;
+    const friend_id = item.from;
+    console.log(my_id, friend_id);
+    var ref = firebase.database().ref("messages").child(`${my_id}`).child(`${friend_id}`);
+    ref.orderByChild("message").equalTo(item.message).once("value", function (snapshot) {
+      snapshot.forEach(function (employee) {
+        employee.ref.remove({ message: item.message });
+      })
+    })
+
+  }
+
+  deleteMyMesssage = (item) => {
+    const my_id = this.props.userID.uid;
+    const friend_id = this.state.person.phone;
+    console.log(my_id, friend_id, item.message);
+    var ref = firebase.database().ref("messages").child(`${my_id}`).child(`${friend_id}`);
+    ref.orderByChild("message").equalTo(item.message).once("value", function (snapshot) {
+      snapshot.forEach(function (employee) {
+        employee.ref.remove({ message: item.message });
+      })
+    })
+
+  }
+  delete_for_everyone = (item) => {
+    const my_id = this.props.userID.uid;
+    const friend_id = this.state.person.phone;
+    console.log(my_id, friend_id);
+    var ref = firebase.database().ref("messages").child(`${my_id}`).child(`${friend_id}`);
+    ref.orderByChild("message").equalTo(item.message).once("value", function (snapshot) {
+      snapshot.forEach(function (employee) {
+        employee.ref.update({ message: "you deleted this message" });
+      })
+    })
+    var ref = firebase.database().ref("messages").child(`${friend_id}`).child(`${my_id}`);
+    ref.orderByChild("message").equalTo(item.message).once("value", function (snapshot) {
+      snapshot.forEach(function (employee) {
+        employee.ref.update({ message: "This message was deleted" });
+      })
+    })
+  }
+
+  someHandlerFunction = (item) => {
+
+    if (item.from === this.props.userID.uid) {
+      Alert.alert(
+        '',
+        'Delete message?',
+        [
+          {
+            text: 'DELETE FOR EVERYONE', onPress: () => {
+              this.delete_for_everyone(item)
+            }
+          },
+          {
+            text: 'CANCEL',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          { text: 'DELETE FOR ME', onPress: () => this.deleteMyMesssage(item) },
+        ],
+        { cancelable: false },
+      );
+    } else if (item.from !== this.props.userID.uid) {
+
+      Alert.alert(
+        '', `Delete message from ${this.state.person.name}`,
+        [
+          { text: 'CANCEL' },
+          {
+            text: 'DELETE FOR ME',
+            onPress: () => {
+              this.FriendMessageDelete(item)
+
+            }
+            ,
+            style: 'cancel',
+          },
+        ],
+        { cancelable: false },
+      );
+    }
+  }
+
+
   render() {
-
-    // console.log(this.state.messageList, "message list create")
-
-
     return (
 
       // <SafeAreaView>
@@ -253,17 +409,20 @@ class ChatScreen extends Component {
         // justifyContent: 'center',
       }}>
         <FlatList
+          // ref={ref => (this.flatList = ref)}
+          ref={(ref) => { this.myFlatListRef = ref }}
           style={{ padding: 10, height: height * 0.6 }}
           data={this.state.messageList}
           renderItem={this.renderRow}
           keyExtractor={(item, index) => index.toString()}
-        // inverted
+          onContentSizeChange={() => { this.myFlatListRef.scrollToEnd({ animated: true }) }}
+          onLayout={() => { this.myFlatListRef.scrollToEnd({ animated: true }) }}
+
+
         />
         <View style={{
-
           padding: 5,
           margin: 0
-
         }}>
 
 
@@ -287,7 +446,7 @@ class ChatScreen extends Component {
                 placeholder="Type Message..."
                 multiline={true}
                 numberOfLines={0}
-                // autoFocus={true}
+              // autoFocus={true}
               />
               <TouchableOpacity onPress={this.sendMessage}>
                 <Text
@@ -322,14 +481,15 @@ function mapStateToProps(state) {
   return {
     phoneNumber: state.authReducer.phoneNumber,
     userID: state.authReducer.userID,
-    All_Message: state.authReducer.All_Message
+    All_Message: state.appReducer.All_Message,
+    userDetail: state.appReducer.userDetail,
   }
 }
 function mapDispatchToProps(dispatch) {
   return {
-    // Get_All_Message: (user, user_ID) => {
-    //   dispatch(All_Message_Action(user, user_ID));
-    // },
+    Get_All_Message: (user, user_ID) => {
+      dispatch(All_Message_Action(user, user_ID));
+    },
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ChatScreen);

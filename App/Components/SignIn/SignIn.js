@@ -67,7 +67,7 @@ class SignIn extends Component {
     } else {
       this.props.signInAction(
         {
-          phoneNumber: code + phoneNumber,
+          phoneNumber: phoneNumber,
           country: country,
           history: this.props.navigation,
           email: email,
@@ -83,28 +83,16 @@ class SignIn extends Component {
         '',
         this.props.SignUpErrorMessage,
         [
-            { text: 'OK', onPress: () => console.log('OK Pressed') },
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
         ],
         { cancelable: false },
-    )
+      )
     } else {
       console.log("nothing")
     }
-
-
-
-
-
-
-
-
   };
 
 
-
-  // Login = () => {
-  //   this.props.navigation.navigate('Login')
-  // }
   render() {
     return (
       <View
@@ -115,7 +103,7 @@ class SignIn extends Component {
           alignItems: "center"
         }}
       >
-         <Text style={{ fontSize: width / 4, color: "#fff", fontWeight:"bold", letterSpacing: -10 }}>hi</Text>
+        <Text style={{ fontSize: width / 4, color: "#fff", fontWeight: "bold", letterSpacing: -10 }}>hi</Text>
         <Text
           style={{
             fontSize: width / 18,
@@ -153,9 +141,8 @@ class SignIn extends Component {
           </Item>
         </View>
         <View style={{ width: width / 2, marginTop: 10, flexDirection: 'row', backgroundColor: '#fff', borderRadius: 10 }}>
-          <Item style={{ borderColor: "transparent", width: width / 6, backgroundColor: "#fff", borderRadius: 10 }}>
-            {/* <select>
-            </select> */}
+          {/* <Item style={{ borderColor: "transparent", width: width / 6, backgroundColor: "#fff", borderRadius: 10 }}>
+          
             <Picker
               mode="dropdown"
               iosIcon={<Icon name="md-arrow-down" />}
@@ -169,11 +156,11 @@ class SignIn extends Component {
               <Picker.Item label="+45" value="+45" />
               <Picker.Item label="+30" value="+30" />
             </Picker>
-          </Item>
-          <Item style={{ width: width / 3, borderColor: "transparent" }}>
+          </Item> */}
+          <Item style={{ width: width / 2, borderColor: "transparent" }}>
             <Input
               style={{ backgroundColor: "#fff", borderRadius: 10, fontSize: width / 24, width: width / 3 }}
-              placeholder="Phone Number"
+              placeholder="Phone no. 0310-1234567"
               keyboardType={"numeric"}
               onChangeText={phoneNumber => this.setState({ phoneNumber })}
               value={this.state.phoneNumber}

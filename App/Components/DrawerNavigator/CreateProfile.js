@@ -381,7 +381,8 @@ class CreateProfile extends Component {
       country,
       uid: this.props.userRegister_Uid,
       phoneNumber: this.props.phoneNumber,
-      history: this.props.navigation
+      history: this.props.navigation,
+      url: "https://assets.rebelcircus.com/blog/wp-content/uploads/2016/05/facebook-avatar.jpg"
     });
 
   };
